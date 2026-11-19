@@ -13,7 +13,10 @@ never overwritten.
 
 .PARAMETER Mod
 The items to install. What they need is installed with them. Without it,
-everything is installed, with the borderless layout.
+the script lists the items and asks which you want.
+
+.PARAMETER All
+Install everything, with the borderless layout, without asking.
 
 .PARAMETER Layout
 Also install the borderless item: the layout with its Files, Changes and tab
@@ -39,6 +42,7 @@ Show the items and what each needs, and install nothing.
 param(
     [Parameter(Position = 0)]
     [string[]]$Mod,
+    [switch]$All,
     [switch]$Layout,
     [switch]$Rebind,
     [switch]$Pull,
@@ -83,6 +87,44 @@ if ($List) {
 if (-not (Test-Path -LiteralPath $appHome)) {
     Write-Host "Herdr app not found ($appHome); nothing to install."
     return
+}
+
+function Test-Installed([string]$Item) {
+    if ($Item -eq $layoutItem) { return Test-Path -LiteralPath (Join-Path $appHome "layouts\$layoutItem.json") }
+    return Test-Path -LiteralPath (Join-Path $appHome "mods\$Item")
+}
+
+if (-not $Mod -and -not $All -and -not $Pull) {
+    $installed = @($items | Where-Object { Test-Installed $_ })
+    Write-Host 'Which do you want?'
+    for ($i = 0; $i -lt $items.Count; $i++) {
+        $line = '{0,3}  {1}' -f ($i + 1), $items[$i]
+        if ($needs[$items[$i]]) { $line += ", with $($needs[$items[$i]] -join ', ')" }
+        if ($items[$i] -eq $layoutItem) { $line += ', the layout' }
+        if ($installed -contains $items[$i]) { $line += ' (installed)' }
+        Write-Host $line
+    }
+    $onEnter = 'install nothing'
+    if ($installed.Count) { $onEnter = 'update what is installed' }
+    try {
+        $answer = Read-Host "Numbers or names, separated by commas; 'all' for everything; Enter to $onEnter"
+    } catch {
+        Write-Host 'Cannot ask here. Name the items, or pass -All for everything.'
+        return
+    }
+    $picks = @("$answer" -split '[,\s]+' | Where-Object { $_ })
+    if (-not $picks.Count) {
+        if (-not $installed.Count) {
+            Write-Host 'Nothing installed.'
+            return
+        }
+        $Mod = $installed
+    } elseif ($picks -notcontains 'all') {
+        $Mod = @($picks | ForEach-Object {
+            $number = 0
+            if ([int]::TryParse($_, [ref]$number) -and $number -ge 1 -and $number -le $items.Count) { $items[$number - 1] } else { $_ }
+        })
+    }
 }
 
 $chosen = $items
@@ -208,6 +250,7 @@ if ($Layout) {
         if ((Test-Path -LiteralPath $liveLayout) -and [System.IO.File]::ReadAllText($liveLayout) -eq $text) {
             Write-Host "unchanged  $liveLayout"
         } else {
+            New-Item -ItemType Directory -Path (Split-Path -Parent $liveLayout) -Force | Out-Null
             [System.IO.File]::WriteAllText($liveLayout, $text, $utf8)
             Write-Host "fitted     $liveLayout ($($script:fitted -join ', '))"
         }

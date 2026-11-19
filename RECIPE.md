@@ -39,5 +39,5 @@ A request such as "like agent-cards, but with my own avatars" or "the PR bar, bu
 **Watch out:**
 
 - Switching the layout and rebinding a key are changes the person sees at once. Never do either without having asked.
-- `Install.ps1` in this folder installs everything without asking. It is for the person at their own keyboard. Do not run it for a request that came to you unless they ask for the script by name.
+- `Install.ps1` in this folder asks at the keyboard which items to install, and `Install.ps1 -All` installs everything without asking. It is for the person at their own keyboard. Do not run it for a request that came to you unless they ask for the script by name.
 - `config.js` files hold what differs per person and ship empty. Fill them from the person's answers, not from guesses.

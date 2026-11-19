@@ -23,8 +23,6 @@ Ask your agent in Herdr:
 
 ```text
 Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/timed-tabs
-
-Show it in place of the tab bar, in a block 42px high.
 ```
 
 Or with PowerShell, from a clone of this repository: `.\Install.ps1 timed-tabs`. Add `-Layout` to get the [Borderless Layout](../borderless) with it.

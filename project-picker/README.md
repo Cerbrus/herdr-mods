@@ -18,8 +18,6 @@ Ask your agent in Herdr:
 
 ```text
 Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/project-picker
-
-Bind ctrl-shift-n to it, and ask me where my projects are for its config.js.
 ```
 
 Or with PowerShell, from a clone of this repository: `.\Install.ps1 project-picker -Rebind`.

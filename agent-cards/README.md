@@ -20,8 +20,6 @@ Ask your agent in Herdr:
 
 ```text
 Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/agent-cards
-
-Show it in place of the Agents list.
 ```
 
 The agent asks which avatar style you want before it installs: see [Pick your own avatars](#pick-your-own-avatars).

@@ -54,7 +54,7 @@ To get more of what is in the picture, have the agent go through the repository 
 Read ~/.config/herdr-app/AGENTS.md, then add this layout: https://github.com/Cerbrus/herdr-mods/tree/master
 ```
 
-Or with PowerShell, from a clone of this repository: `.\Install.ps1 borderless` for the layout alone, `.\Install.ps1` for everything, without asking.
+Or with PowerShell, from a clone of this repository: `.\Install.ps1 borderless` for the layout alone, `.\Install.ps1` to pick from a list, `.\Install.ps1 -All` for everything, without asking.
 
 ## Using it
 

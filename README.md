@@ -46,7 +46,8 @@ For a mod you chose, the agent reads the `RECIPE.md` of the folder and every fil
 Clone the repository anywhere, then:
 
 ```powershell
-.\Install.ps1                                # everything, with the layout, without asking
+.\Install.ps1                                # lists the items and asks which you want
+.\Install.ps1 -All                           # everything, with the layout, without asking
 .\Install.ps1 agent-cards, pr-inbox -Layout  # two mods, in the Borderless Layout
 .\Install.ps1 project-picker -Rebind         # one mod, in your own layout
 .\Install.ps1 -List                          # the items and what each needs
