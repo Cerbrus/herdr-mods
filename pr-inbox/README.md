@@ -30,9 +30,11 @@ Folded, it is one line: the counts, and the pull request that needs you most.
 
 Ask your agent in Herdr:
 
-> Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/pr-inbox
->
-> Show it as a bar between the terminals and the status bar, in a block with id prs that is 29px high, and ask me for the organisation and project folders for its config.js.
+```text
+Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/pr-inbox
+
+Show it as a bar between the terminals and the status bar, in a block with id prs that is 29px high, and ask me for the organisation and project folders for its config.js.
+```
 
 Or with PowerShell, from a clone of this repository: `.\Install.ps1 pr-inbox -Layout`, which also installs the [Borderless Layout](../borderless) that has the bar in place.
 

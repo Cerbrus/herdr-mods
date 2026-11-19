@@ -18,11 +18,13 @@ A space outside every folder is loose and shows above the folders. Inside a fold
 
 Ask your agent in Herdr:
 
-> Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/space-folders
->
-> Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/project-picker
->
-> Show space-folders in place of the Spaces list.
+```text
+Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/space-folders
+
+Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/project-picker
+
+Show space-folders in place of the Spaces list.
+```
 
 Or with PowerShell, from a clone of this repository: `.\Install.ps1 space-folders`. Add `-Layout` to get the [Borderless Layout](../borderless) with it.
 

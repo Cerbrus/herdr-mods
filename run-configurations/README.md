@@ -33,11 +33,13 @@ Other kinds are listed as skipped.
 
 Ask your agent in Herdr:
 
-> Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/run-configurations
->
-> Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/timed-tabs
->
-> Show timed-tabs in place of the tab bar.
+```text
+Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/run-configurations
+
+Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/timed-tabs
+
+Show timed-tabs in place of the tab bar.
+```
 
 Or with PowerShell, from a clone of this repository: `.\Install.ps1 run-configurations`.
 

@@ -16,11 +16,13 @@ Every keyboard shortcut of your Herdr, in a panel next to your terminals. It rea
 
 Ask your agent in Herdr:
 
-> Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/shortcuts
->
-> Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/timed-tabs
->
-> Show timed-tabs in place of the tab bar, and add shortcuts to the side panel next to Files and Changes, as a block with id shortcuts.
+```text
+Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/shortcuts
+
+Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/timed-tabs
+
+Show timed-tabs in place of the tab bar, and add shortcuts to the side panel next to Files and Changes, as a block with id shortcuts.
+```
 
 Or with PowerShell, from a clone of this repository: `.\Install.ps1 shortcuts -Layout`, which also installs the [Borderless Layout](../borderless) that has the panel in place.
 

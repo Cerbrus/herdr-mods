@@ -2,6 +2,8 @@
 
 import { View, div, image, svg } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
+import * as config from "./config.js";
+import { Z_COLOR, accentColor, avatarUrl, styleName, tuckIn } from "./avatars.js";
 import { agents, terminals, panes, focused, spaces, run, theme, shared, setShared, setAgentOrder, nextCommand, openOverlay, closeOverlay, props, window, layout, appHome, checking, exec, readTextFile, writeTextFile, watchFolder } from "herdr";
 
 function find(node, id) {
@@ -80,23 +82,12 @@ function icon(p, size, color) {
 
 const AVATAR_DIR = "data/agent-cards/avatars";
 const CONTEXT_DIR = "data/claude-statusline";
-const AVATAR_URL = "https://api.dicebear.com/10.x/voxel-bot/svg?flip=horizontal&backgroundColor=00000000&bodyColor=e9ecef,aeb8c2,b6a6f5,74c0fc&screenColor=07070a&glowColor=3bc9db,69db7c,ffd43b,e599f7&seed=";
+const STYLE = styleName(config.STYLE);
+const AVATAR_URL = avatarUrl(STYLE, config.OPTIONS ?? "");
 const LOCAL_ID = /^[A-Za-z0-9][A-Za-z0-9_-]*$/;
 const AVATAR = 44;
 const Z_PERIOD = 2700;
 const Z_COUNT = 3;
-const Z_COLOR = "#69db7c";
-const BED = '<path d="M2 14h10v100H2Z" fill="#5f3820"/><path d="M10 18h116v92H10Z" fill="#7a4a2d"/><path d="M14 22h109v84H14Z" fill="#d8c9a3"/><path d="M17 25h28v78H17Z" fill="#f5efe0"/><path d="M17 97h28v6H17Z" fill="#000000" fill-opacity=".12"/>';
-const eyeColor = (text) => text.match(/id="eyes-[^"]*">.*?fill="(#[0-9a-f]{6})"/i)?.[1] ?? Z_COLOR;
-const BODY_COLORS = AVATAR_URL.match(/bodyColor=([^&]*)/)[1].split(",");
-const shade = (hex, by) => `#${[0, 2, 4].map((i) => Math.round(parseInt(hex.slice(i, i + 2), 16) * (1 - by)).toString(16).padStart(2, "0")).join("")}`;
-const blend = (a, b) => `#${[1, 3, 5].map((i) => Math.round((parseInt(a.slice(i, i + 2), 16) + parseInt(b.slice(i, i + 2), 16)) / 2).toString(16).padStart(2, "0")).join("")}`;
-const sheet = (body, eye) => `<path d="M84 22h39v84H84Z" fill="${shade(body, 0.3)}"/><path d="M84 98h39v8H84Z" fill="#000000" fill-opacity=".22"/><path d="M97 22v84M110 22v84" stroke="#000000" stroke-opacity=".14" stroke-width="1.5"/><path d="M77 22h9v84h-9Z" fill="${blend(eye, shade(body, 0.3))}"/><path d="M77 98h9v8h-9Z" fill="#000000" fill-opacity=".14"/>`;
-const FLIPPED = '<g transform="translate(128, 0) scale(-1, 1)">';
-const tuckIn = (text) => {
-  const body = BODY_COLORS.find((color) => text.toLowerCase().includes(`fill="#${color}"`)) ?? BODY_COLORS[0];
-  return text.replace(FLIPPED, `${BED}<g transform="rotate(270, 64, 64)">${FLIPPED}`).replace(/<\/g><\/svg>\s*$/, `</g>${sheet(body, eyeColor(text))}</g></svg>`);
-};
 const INACTIVE_AFTER = 16 * 3600000;
 
 function hash(text) {
@@ -112,7 +103,7 @@ function hash(text) {
 
 const AVATAR_STYLE = hash(AVATAR_URL).slice(0, 6);
 const avatarKey = (a) => hash(`${a.space_name}\u0000${a.tab_name}`);
-const avatarFile = (key, asleep) => `${AVATAR_DIR}/${key}-${AVATAR_STYLE}${asleep ? "-asleep-bed5" : ""}.svg`;
+const avatarFile = (key, asleep) => `${AVATAR_DIR}/${key}-${AVATAR_STYLE}${asleep ? "-asleep-bed6" : ""}.svg`;
 
 function contextColor(pct) {
   const f = Math.max(0, Math.min(1, pct / 100));
@@ -201,11 +192,11 @@ export default class Agents extends View {
       if (!text && asleep) {
         const awake = await this.awakeText(key);
         if (!awake) return;
-        text = tuckIn(awake);
+        text = tuckIn(awake, STYLE);
         await writeTextFile(path, text, null);
       }
       if (!text) return;
-      this.eyes.set(file, eyeColor(text));
+      this.eyes.set(file, accentColor(text, STYLE));
       this.avatars.add(file);
       cx.notify();
     });

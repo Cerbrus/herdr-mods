@@ -25,11 +25,15 @@ Each folder has a `README.md` with pictures, how to set it up and how to use it.
 
 Herdr's agents know how to add a mod from a GitHub folder. Ask the one in your Herdr window:
 
-> Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/agent-cards
+```text
+Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/agent-cards
+```
 
 Each mod's README has the sentence to use for it. To look at the whole set and pick:
 
-> Read ~/.config/herdr-app/AGENTS.md, then add this layout: https://github.com/Cerbrus/herdr-mods/tree/master
+```text
+Read ~/.config/herdr-app/AGENTS.md, then add this layout: https://github.com/Cerbrus/herdr-mods/tree/master
+```
 
 The agent goes through the list with you, asks which mods you want, whether you want the layout, and what each mod needs to know from you. Nothing is installed until you have answered. The `RECIPE.md` at the top of the repository tells it to do so even when you ask for "all the mods".
 
@@ -56,10 +60,11 @@ Non-elevated and idempotent: run it again after a `git pull` to update. What a m
 
 ## Yours to fill in
 
-Three mods need to know something about you. Each keeps it in a `config.js` in its own folder under `~/.config/herdr-app/mods`, which is copied once and never overwritten by an update:
+Four mods have something for you to fill in. Each keeps it in a `config.js` in its own folder under `~/.config/herdr-app/mods`, which is copied once and never overwritten by an update:
 
 | Mod | What to fill in |
 |---|---|
+| Agent Cards | Optional: the avatar style |
 | Project Picker | Where your projects are, and what a new space starts |
 | PR Inbox | The GitHub organisation, which repositories, where your projects are |
 | Space Folders | Optional: folders to start with |
