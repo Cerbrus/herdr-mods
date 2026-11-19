@@ -1,22 +1,45 @@
-# herdr-config
+# herdr-mods
 
-[herdr](https://herdr.dev) customization: the terminal herdr config and the Herdr app layout and mods.
+Mods and a layout for the [Herdr](https://herdr.dev) desktop app. Each mod installs on its own.
 
 ## What is in here
 
-| Path | Goes to | What it is |
-|---|---|---|
-| `terminal/config.toml` | `%APPDATA%\herdr\config.toml` | Terminal herdr: theme colors, sidebar agent rows (model and context bar), sounds off. |
-| `app/layouts/main-folders.json` | `~\.config\herdr-app\layouts\` | Clone of the shipped `main` layout that shows the `spaces-folders` mod in the sidebar, with square panes and panels that sit flush, 1px lines between them. A tab's only pane has no header or focus ring. |
-| `app/mods/spaces-folders/` | `~\.config\herdr-app\mods\` | Clone of the shipped `spaces` mod that draws the spaces list as a file tree of collapsible folders. |
-| `app/mods/space-open/` | `~\.config\herdr-app\mods\` | Picker that opens a folder as a new space running `claude`. |
-| `app/mods/files-flat/`, `app/mods/changes-flat/` | `~\.config\herdr-app\mods\` | Clones of the shipped `files` and `changes` panels without their rounded border; the layout draws the lines between them. The Changes diff also has a Wrap toggle for long lines and a sideways scrollbar that always shows. |
-| `app/mods/agents-bots/` | `~\.config\herdr-app\mods\` | Clone of the shipped `agents` list that shows each agent as a card: a robot avatar, a context bar, the time since its status changed and the status. |
-| `app/mods/tabs-timer/` | `~\.config\herdr-app\mods\` | Clone of the shipped `tabs` bar that shows, on a tab whose agent is working, how long it has been working, and has the Keys button. |
-| `app/mods/new-menu-run/` | `~\.config\herdr-app\mods\` | Clone of the shipped `new-menu` popup behind the `+` in the tab bar, with a "Start a run config…" row. |
-| `app/mods/run-configs/` | `~\.config\herdr-app\mods\` | Our own tab that runs the JetBrains run configurations (`.run\*.run.xml`) of a folder and shows the output of each process. Windows only: it runs `LaunchSettings` configurations with `dotnet run` after one `dotnet build`, `RunNativeExe` configurations as they are, npm configurations as `yarn`, `pnpm` or `npm run <script>` (by the lock file next to `package.json`), and compounds of those; other types are listed as skipped. |
-| `app/mods/cheatsheet/` | `~\.config\herdr-app\mods\` | Our own panel listing the keyboard shortcuts, opened with Keys next to Changes. |
-| `app/mods/prs-panel/` | `~\.config\herdr-app\mods\` | Our own bar under the terminals with the open Asito pull requests: one summary line that unfolds into Mine and To review. Needs an authenticated `gh`. |
+Every folder is one item, laid out like the app's own folder (`~\.config\herdr-app`): `mods/<name>/`, a `keys.json` with the keys it expects, and a `RECIPE.md` that describes it.
+
+| Item | What it is | Needs | Keys | Yours to fill in |
+|---|---|---|---|---|
+| `agents-bots` | Clone of the shipped `agents` list that shows each agent as a card: a robot avatar, a context bar, the time since its status changed and the status. | | `alt-a` | |
+| `tabs-timer` | Clone of the shipped `tabs` bar with flat tabs, a timer on a tab whose agent is working, and a marker for where a dragged tab lands. | | | |
+| `spaces-folders` | Clone of the shipped `spaces` list that draws the spaces as a tree of collapsible folders. | `space-open` | | `config.js`: the folders a first run starts with |
+| `space-open` | Picker that opens a folder as a new space running an agent. | | `ctrl-shift-n` | `config.js`: where your projects are, what a space starts |
+| `files-flat`, `changes-flat` | Clones of the shipped `files` and `changes` panels without their rounded border. Changes also has a Wrap toggle for long lines. | | | |
+| `cheatsheet` | Panel that lists every keyboard shortcut, opened with Keys in the tab bar. | `tabs-timer` | | |
+| `run-configs` | Tab that runs the JetBrains run configurations (`.run\*.run.xml`) of a folder and shows the output of each process. Comes with `new-menu-run`, the `+` menu with a "Start a run config…" row. Windows only. | `tabs-timer` | `ctrl-shift-r`, `ctrl-shift-w` | |
+| `prs-panel` | Bar under the terminals with your open pull requests: one summary line that unfolds into To review and Mine. Needs an authenticated `gh`. | | | `config.js`: organisation, repositories, where your projects are |
+| `main-folders` | Layout: a clone of the shipped `main` layout that shows all of the above, with square panes and panels that sit flush, 1px lines between them. | | | |
+
+Mods are trusted code. `agents-bots` fetches avatars from `api.dicebear.com`, `prs-panel` reaches GitHub through `gh`, and `run-configs` runs your run configurations. The others only read: `git`, and folder listings through `cmd`, `powershell` or `sh`.
+
+## Install
+
+Clone the repository anywhere, then:
+
+```powershell
+.\Install.ps1                                  # everything, with the layout
+.\Install.ps1 agents-bots, prs-panel -Layout   # two mods, in the layout
+.\Install.ps1 space-open                       # one mod, your own layout
+.\Install.ps1 -List                            # the items and what each needs
+```
+
+Non-elevated and idempotent: run it again after a `git pull` to update. What an item needs is installed with it.
+
+- **The layout.** A mod only shows where a layout puts it. `-Layout` installs `main-folders`, fitted to what you have: a block whose mod is not installed shows the shipped mod it was cloned from, and the Keys panel and the pull requests bar are left out. Once the layout is there, every later install fits it again. Show it with `herdr-app do layout.switch --name main-folders`; `ctrl-shift-l` switches back. For your own layout, point a block at the mod: `"content": { "mod": "agents-bots" }`.
+- **Keys.** The keys in an item's `keys.json` are added to the app's `keys.json`. A key that already does something else is reported and left alone; `-Rebind` hands it to the mod. That is only `ctrl-shift-n`, which Herdr binds to `space.new`.
+- **`config.js`.** Copied once, never overwritten. `space-open` and `prs-panel` do little until you list your project folders in theirs. Saving the file applies it at once.
+
+Without PowerShell, ask your agent in Herdr: "add the mod from `https://github.com/Cerbrus/herdr-mods/tree/master/agents-bots`". It reads the `RECIPE.md` and copies the files.
+
+## The mods
 
 ### Spaces folders
 
@@ -25,60 +48,57 @@ Folders are made and filled by hand; a space outside every folder is loose and s
 - **New folder**: the folder button next to `+` in the Spaces header, or "New folder" in a folder's right-click menu for one inside it. Folders nest three levels deep at most.
 - **Right-click a folder header**: New space (opens the picker; the space lands in that folder), New folder, Rename, Move to, Move up, Move down, Delete. Delete is only offered when no space is in the folder or under it; its empty subfolders go with it.
 - **Move a folder**: drag its header onto another header. The top or bottom edge puts it before or after that folder, the middle puts it inside.
-- **Fold**: click a folder header; a folded folder hides everything under it. Folded folders open by themselves when you go to a space, tab or agent inside them. Which folders are folded is kept in `~\.config\herdr-app\data\spaces-folders\store.json`.
+- **Fold**: click a folder header; a folded folder hides everything under it. Folded folders open by themselves when you go to a space, tab or agent inside them.
 - **Move a space**: drag it onto a folder header or onto a space inside that folder. Drag it onto a loose space, or below the list, to take it out of its folder.
 
-Spaces are reordered so each folder's spaces sit together. The folders and which space is in which are app state (`spaces.folders` in `~\.config\herdr-app\shared.json`), not files in this repo. On a first run `folders.js` seeds an `Asito` folder (spaces named `asito-*` or `mtp-*`) and a `Personal` folder (spaces under `~Cerbrus`).
+Spaces are reordered so each folder's spaces sit together. The folders and which space is in which are app state (`spaces.folders` in `~\.config\herdr-app\shared.json`). `SEED` in `config.js` names folders to start with and which open spaces go into each; it is only used the first time the list runs.
+
+### Opening a space
+
+The `+` in the Spaces header and `ctrl-shift-n` open the `space-open` picker: the folders under `ROOTS` in its `config.js`, narrowed as you type; a typed full path is offered as it is. Enter opens the folder as a space that runs `ARGV` from the same file (`claude`), or shows the space already open there. The new space is loose, unless the picker was opened from a folder's right-click menu.
 
 ### Agent cards
 
-Each agent's avatar is a [DiceBear](https://www.dicebear.com) `voxel-bot` in the Night Shift colours, mirrored and on a transparent background, the same one for the same space and tab. `agents-bots` fetches it once from `api.dicebear.com`, sending only a hash of the space and tab name as the seed, and keeps it in `~\.config\herdr-app\data\agents-bots\avatars\`. The avatar bobs while the agent works, shakes sideways in bursts when it needs you and is dimmed while it is idle.
+Each agent's avatar is a [DiceBear](https://www.dicebear.com) `voxel-bot`, the same one for the same space and tab. `agents-bots` fetches it once from `api.dicebear.com`, sending only a hash of the space and tab name as the seed, and keeps it in `~\.config\herdr-app\data\agents-bots\avatars\`. The avatar bobs while the agent works, shakes sideways in bursts when it needs you and is dimmed while it is idle. `alt-a` shows the agent at the top of the list.
 
-The context bar reads `~\.config\herdr-app\data\claude-statusline\<terminal id>.json`, written by `claude-statusline\pr-statusline.ps1`; it stays empty until that agent's status line has drawn once. An agent that has been idle for more than 16 hours moves to a folded `Inactive` group at the bottom, unless it is pinned or shown; there its avatar lies on its side, asleep. Sorting, pinning, sub-agents and the narrow rail work as in the shipped list.
+The context bar reads `~\.config\herdr-app\data\claude-statusline\<terminal id>.json`. Nothing in this repository writes that file: a Claude Code status line script does, [this one](https://github.com/Cerbrus/utilities/tree/master/claude-statusline) for example. Without it the bar stays empty.
 
-`agents-bots` publishes when each agent's status last changed as `agents.changed` in the shared state; `tabs-timer` reads it for the timer on a working tab, so the timer needs the agents list in the layout.
+An agent that has been idle for more than 16 hours moves to a folded `Inactive` group at the bottom, unless it is pinned or shown; there its avatar lies in a bed, asleep. Sorting, pinning, sub-agents and the narrow rail work as in the shipped list.
+
+### Tab bar
+
+A working tab shows how long its agent has been working. With `agents-bots` installed that time survives a restart; without it the bar counts from when it first saw the tab working. The `+` opens `new-menu-run` when `run-configs` is installed and the shipped menu otherwise, and the Keys button shows when the layout has the Keys panel.
+
+### Run configs
+
+`ctrl-shift-r` shows the space's `Run` tab, opening it when there is none; it starts nothing. "Start a run config…" in the tab bar's `+` menu opens one too. The tab lists the JetBrains run configurations of the folder, or of the nearest parent that has a `.run` folder: `LaunchSettings` ones run with `dotnet run` after one `dotnet build`, `RunNativeExe` ones as they are, npm ones as `yarn`, `pnpm` or `npm run <script>` (by the lock file next to `package.json`), and compounds of those; other types are listed as skipped.
+
+The star in front of a run config keeps it at the top, above a line. `>_ Terminal` in the toolbar splits a terminal in under the run configs. On a running process, `⌨` opens a line under its output; Enter types that line into the process.
+
+Output is coloured by what a line says, not by the program's own colours, which Herdr does not hand to a mod: errors red, warnings yellow, debug lines dim, success lines green, URLs blue. A URL opens in the browser when clicked. An unfolded process shows its newest lines; scrolling up over them turns the box into a scroll area over the last 500 lines, until `↓ Follow` on its row.
+
+Closing a `Run` tab stops its processes. With the tab's close button, a middle click or `ctrl-shift-w` (bound to `tabs-timer.close` in the `main-folders` layout) the tab says it is stopping and closes once every process has ended; closing it again does not wait. Closed any other way, or when the app quits, the processes are killed at once.
 
 ### Keys panel
 
 Keys, next to Files and Changes in the tab bar, opens a panel with every shortcut from the app's `keys.json`, grouped by where it works and what it acts on, each with the command's own description. The filter narrows the list by description, command or key.
 
-### Opening a space
+### Pull requests
 
-The `+` in the Spaces header and `ctrl-shift-n` open the `space-open` picker: the folders under the roots in `app/mods/space-open/roots.js`, narrowed as you type; a typed full path is offered as it is. Enter opens the folder as a space that runs `ARGV` from the same file (`claude`), or shows the space already open there. The new space is loose, unless the picker was opened from a folder's right-click menu.
-
-`Install.ps1` rebinds `ctrl-shift-n` in the app's `keys.json` from `space.new` to the picker, binds `alt-a` to `agents-bots.top`, which shows the agent at the top of the Agents list, and binds `ctrl-shift-r` to `tabs-timer.run`, which shows the space's `Run` tab, opening it when there is none. It starts nothing. In the list of run configs, the star in front of one keeps it at the top, above a line. The picked run config and the stars are kept per `.run` folder in `run-configs.picks` in `~\.config\herdr-app\shared.json`.
-
-`>_ Terminal` in the tab's toolbar splits a terminal in under the run configs, in the `.run` folder's parent. On a running process, `⌨` opens a line under its output; Enter types that line into the process.
-
-Output is coloured by what a line says, not by the program's own colours, which herdr does not hand to a mod: errors red, warnings yellow, debug lines dim, success lines green, URLs blue. A URL opens in the browser when clicked. An unfolded process shows its newest lines; scrolling up over them turns the box into a scroll area over the last 500 lines, one process at a time, until `↓ Follow` on its row.
-
-Closing a `Run` tab stops its processes. With the tab's close button, a middle click or `ctrl-shift-w` (which `Install.ps1` binds to `tabs-timer.close` in the `main-folders` layout) the tab says it is stopping and closes once every process has ended; closing it again does not wait. Closed any other way, or when the app quits, the processes are killed at once. Ended processes and their output are removed when the tab closes, or else when it is opened again, so a new `Run` tab starts empty; processes still running are picked up. "New space" in the tab bar's `+` menu and in the command palette is still Herdr's own and starts a shell; the [PowerShell profile](../powershell-profile/README.md) launches `claude` in it, as in any space's first terminal.
-
-The layout and the `spaces-folders`, `files-flat`, `changes-flat`, `agents-bots`, `tabs-timer` and `new-menu-run` mods were cloned from Herdr app 0.1.16 (`cloned_from` in the files). Herdr never updates clones, so changes to the shipped `main` layout or `spaces`, `files`, `changes`, `agents`, `tabs` and `new-menu` mods have to be merged in; see [After a Herdr update](#after-a-herdr-update).
-
-## Install
-
-```powershell
-.\Install.ps1
-```
-
-Copies every file to its place. Non-elevated and idempotent; a part whose herdr is not installed is skipped. Afterwards:
-
-```powershell
-herdr server reload-config                        # terminal herdr
-herdr-app do layout.switch --name main-folders    # Herdr app
-```
+The bar under the terminals counts your open pull requests by what they need from you; a click unfolds it into To review and Mine. A row opens the pull request in the browser. The icon in front of a row that needs something from you finds the repository's space (or opens it from `ROOTS`), starts a new agent tab there and pastes `Review #<number>`, or `Handle feedback on #<number>` for your own pull request. It refreshes every five minutes. `OWNER` and `REPOS` in `config.js` narrow it to one organisation and to repositories by name.
 
 ## After a Herdr update
+
+`agents-bots`, `tabs-timer`, `spaces-folders`, `files-flat`, `changes-flat`, `new-menu-run` and the layout are clones of what Herdr 0.1.16 ships (`cloned_from` in the files). Herdr never updates clones, so its own changes have to be merged in:
 
 ```powershell
 .\Merge-Upstream.ps1 -Check    # what changed, and how it would merge
 .\Merge-Upstream.ps1           # merge it into the clones in the repo
 ```
 
-`upstream/` holds every shipped file a clone was made from, as it was when the clone was last brought up to date. `Merge-Upstream.ps1` compares those with what the installed Herdr app ships now. A changed file is merged into its clone with a three-way merge (`git merge-file`), the copy in `upstream/` is renewed and the clone's `cloned_from` version is raised. It reports files Herdr added or dropped, and runs `herdr-app check` on a merged mod.
+`upstream/` holds every shipped file a clone was made from, as it was when the clone was last brought up to date. `Merge-Upstream.ps1` compares those with what the installed Herdr app ships now. A changed file is merged into its clone with a three-way merge (`git merge-file`), the copy in `upstream/` is renewed and the clone's `cloned_from` version is raised.
 
-`Install.ps1` runs it first, so every install says whether the shipped files changed. A merge with conflicts leaves `<<<<<<<` markers in the repo file; `Install.ps1` skips such a file until the markers are resolved. A clean merge only proves the text fits: try the mod in the app afterwards.
+`Install.ps1` runs it first, so every install says whether the shipped files changed. A merge with conflicts leaves `<<<<<<<` markers in the repo file; `Install.ps1` skips such a file until the markers are resolved. If you only use these mods, update Herdr first and then pull this repository: the merge is then already in it.
 
 ## Changing things
 
@@ -89,8 +109,4 @@ herdr-app check $HOME\.config\herdr-app\mods\spaces-folders
 .\Install.ps1 -Pull
 ```
 
-`-Pull` copies the live files back over the repo's copies, including new `.js`, `.json` and `.svg` files in a mod folder that is already in the repo. A new mod folder has to be copied into `app/mods/` by hand once.
-
-## Related
-
-Two terminal herdr integrations live elsewhere in this repo: the hook that starts `claude` in new panes is part of [powershell-profile](../powershell-profile/README.md), and [claude-statusline](../claude-statusline/README.md) reports model and context usage to the sidebar. Neither applies to the Herdr app, which sets no `HERDR_*` variables.
+`-Pull` copies the live files back over the repo's copies, including new `.js`, `.json` and `.svg` files in a mod folder that is already in the repo. `config.js` files stay where they are: what the repo ships is the empty one. The layout is only pulled when every mod it names is installed. A new mod gets a folder of its own here, `<name>\mods\<name>\`, copied by hand once.
