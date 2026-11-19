@@ -146,6 +146,13 @@
                           }
                         },
                         {
+                          "id": "graph",
+                          "type": "block",
+                          "content": {
+                            "mod": "git-graph"
+                          }
+                        },
+                        {
                           "id": "shortcuts",
                           "type": "block",
                           "content": {

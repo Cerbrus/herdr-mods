@@ -1,6 +1,6 @@
 # Borderless Layout
 
-Herdr's `main` layout with everything flush: square panes and panels separated by 1px lines instead of rounded cards with 8px between them. A tab with one pane is only the terminal, without a header or frame. The sidebar shows spaces in folders and agents as cards, the tab bar times working agents, the side panel has a third page with the keyboard shortcuts, and a bar with your pull requests sits between the terminals and the status bar.
+Herdr's `main` layout with everything flush: square panes and panels separated by 1px lines instead of rounded cards with 8px between them. A tab with one pane is only the terminal, without a header or frame. The sidebar shows spaces in folders and agents as cards, the tab bar times working agents, the side panel has two more pages, a git graph and the keyboard shortcuts, and a bar with your pull requests sits between the terminals and the status bar.
 
 ![Borderless Layout](preview.png)
 
@@ -20,13 +20,13 @@ Left to right, on the `canvas` background, with a 1px `border`-coloured divider 
 
 The terminals: panes are square, 1px apart, with the line between them in the `border` colour. Each pane of a split tab has a 30px header on top. The focused pane has a 1px `accent` ring; the others have a 1px edge in the `background` colour, so nothing shifts when focus moves. Terminal text is padded 14px left and right and 12px top and bottom.
 
-The side panel has three pages, one shown at a time: Files, Changes and Keys. None has a border or rounded corners of its own.
+The side panel has four pages, one shown at a time: Files, Changes, Git and Keys. None has a border or rounded corners of its own.
 
 ## How it behaves
 
 The layout itself has no behaviour; its mods do. Agent statuses (working, blocked, done, idle) are drawn by the agents list, the tab bar and the spaces list; see the recipes of `agent-cards`, `timed-tabs` and `space-folders`.
 
-- `Files`, `Changes` and `Keys` in the tab bar open the side panel on that page; the button of the open page closes it. The panel's left edge can be dragged between 280px and 900px.
+- `Files`, `Changes`, `Git` and `Keys` in the tab bar open the side panel on that page; the button of the open page closes it. The panel's left edge can be dragged between 280px and 900px.
 - A tab with a single pane shows no header, border or focus ring. Split it and every pane gets its header.
 - The pull requests bar folds and unfolds by changing its own height; its top edge can be dragged.
 - The sidebar and the work column have fixed sizes among their siblings (`resizable: false`), as in the shipped layout.
@@ -56,6 +56,7 @@ root: row
           panel-body: stack, active files
             files: block, mod borderless-files
             changes: block, mod borderless-changes
+            graph: block, mod git-graph
             shortcuts: block, mod shortcuts
       prs: block, 29px, min 29, mod pr-inbox
     status: block, 28px, mod workspace-status
@@ -68,12 +69,12 @@ What differs from the shipped `main`:
 - Mods swapped: `spaces` to `space-folders`, `agents` to `agent-cards`, `tabs` to `timed-tabs`, `files` to `borderless-files`, `changes` to `borderless-changes`.
 - `work-body`: `padding` 8 to 0, `gap` 8 to 1, and a `background` of `border`.
 - Pane frame: `gap` 8 to 1, `radius` 10 to 0, border colour `border` to `background`, `lone` true to false.
-- `panel-body` has a third child, `shortcuts`.
+- `panel-body` has two more children, `graph` and `shortcuts`.
 - `work-main` is new: a column around `work-body` and the new `prs` block.
 
-Mods that come with the layout, in this folder's `mods/` (described at the end of this recipe): `borderless-files`, `borderless-changes` and `borderless-tabs`. Mods it shows when they are installed, each a sibling folder of this repo with its own recipe: `space-folders`, `agent-cards`, `timed-tabs`, `shortcuts`, `pr-inbox`. Shipped mods used as they are: `workspace-chrome` (twice, the footer with `props.footer`), `pane`, `workspace-status`. The layout passes no other `props`, runs no programs and has no art.
+Mods that come with the layout, in this folder's `mods/` (described at the end of this recipe): `borderless-files`, `borderless-changes` and `borderless-tabs`. Mods it shows when they are installed, each a sibling folder of this repo with its own recipe: `space-folders`, `agent-cards`, `timed-tabs`, `shortcuts`, `pr-inbox`. One mod from another repository, shown when it is installed: `git-graph` (https://github.com/rabeeh-ta/herdr-git-graph). Shipped mods used as they are: `workspace-chrome` (twice, the footer with `props.footer`), `pane`, `workspace-status`. The layout passes no other `props`, runs no programs and has no art.
 
-Fitting it to what is installed: the repo's `Install.ps1 -Layout` writes the layout so that a block whose mod is not installed shows what stands in for it (`spaces` for `space-folders`, `agents` for `agent-cards`, `borderless-tabs` for `timed-tabs`), and leaves the `shortcuts` and `prs` blocks out when those mods are missing, as they have no shipped original. An agent adding the layout by hand does the same.
+Fitting it to what is installed: the repo's `Install.ps1 -Layout` writes the layout so that a block whose mod is not installed shows what stands in for it (`spaces` for `space-folders`, `agents` for `agent-cards`, `borderless-tabs` for `timed-tabs`), and leaves the `graph`, `shortcuts` and `prs` blocks out when those mods are missing, as they have no shipped original. An agent adding the layout by hand does the same.
 
 ## Watch out
 
@@ -82,8 +83,8 @@ Fitting it to what is installed: the repo's `Install.ps1 -Layout` writes the lay
 - `lone: false` drops the whole frame of a tab's only pane, header included, not only the border and the ring. The header's buttons (split, zoom, close) are then only reachable by key or menu.
 - `work` is `resizable: false`, so nothing directly inside it can be dragged. `work-main` exists only so the edge between the terminals and `prs` can be.
 - `pr-inbox` folds by resizing the block with id `prs`, so that block needs a pixel size and `"min": 29`. Rename the block and the mod needs `props.block`.
-- The tab bar's `Files` and `Changes` buttons select the stack children by the ids `files` and `changes`, and `timed-tabs` shows `Keys` only when `panel-body` has a child with id `shortcuts`. Keep the ids `panel`, `panel-body`, `files`, `changes`, `shortcuts`.
-- Leaving the `shortcuts` block in without the mod gives a `Keys` button that opens an empty page; leave the block out instead.
+- The tab bar's `Files` and `Changes` buttons select the stack children by the ids `files` and `changes`, and `timed-tabs` shows `Git` and `Keys` only when `panel-body` has a child with id `graph` and `shortcuts`. Keep the ids `panel`, `panel-body`, `files`, `changes`, `graph`, `shortcuts`.
+- Leaving the `shortcuts` or `graph` block in without its mod gives a `Keys` or `Git` button that opens an empty page; leave the block out instead.
 - `space-folders` needs the `project-picker` mod, and the timer in `timed-tabs` reads `agents.changed`, which `agent-cards` writes: with the shipped `agents` list the timer starts counting when the tab bar first sees the agent working.
 - It is a clone: Herdr never updates it. After an app update, merge what changed in the shipped `main` layout.
 - `traffic_lights` only matters on macOS.
@@ -93,7 +94,7 @@ Fitting it to what is installed: the repo's `Install.ps1 -Layout` writes the lay
 - `layout.switch { name: "borderless" }` shows the layout without a warning about an unknown mod.
 - A tab with one terminal shows the terminal only: no header, no rounded corners, no gap around it.
 - After a split, each pane has a 30px header, the panes are 1px apart, and moving focus between them does not change the size of either terminal.
-- `Files`, `Changes` and `Keys` in the tab bar each open the side panel on their page, with one 1px line between the terminals and the panel.
+- `Files`, `Changes`, `Git` and `Keys` in the tab bar each open the side panel on their page, with one 1px line between the terminals and the panel.
 - The pull requests bar is 29px high under the terminals and unfolds on a click.
 - `ctrl-shift-l` switches back to the previous layout, which is unchanged.
 

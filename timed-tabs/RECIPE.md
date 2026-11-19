@@ -1,6 +1,6 @@
 # Timed Tabs
 
-The tab bar across the top of the window, with flat tabs that fill the bar's height and are separated by 1px lines. A tab whose agent is working shows how long it has been working. Dragging a tab shows where it will land, a middle click closes a tab, and next to Files and Changes there is a Keys button when the layout has the shortcuts panel.
+The tab bar across the top of the window, with flat tabs that fill the bar's height and are separated by 1px lines. A tab whose agent is working shows how long it has been working. Dragging a tab shows where it will land, a middle click closes a tab, and next to Files and Changes there is a Keys button when the layout has the shortcuts panel and a Git button when it has the git graph.
 
 ![Timed Tabs](preview.png)
 
@@ -15,7 +15,7 @@ Left to right, in a bar drawn for a 42px high block, on the `chrome` background 
   - the status: a 12px spinner in `working`, or a 6px dot in `blocked` or `done`;
   - on the active tab, a 12px close cross in `dim`.
 - A 26px "+" button.
-- Panel buttons, 26px high, 12px type, a 14px icon and a label: "Files", "Changes", and "Keys" when the layout has the shortcuts panel. The button of the open panel has the `selected` background.
+- Panel buttons, 26px high, 12px type, a 14px icon and a label: "Files", "Changes", "Git" when the layout has the git graph panel, and "Keys" when it has the shortcuts panel. The button of the open panel has the `selected` background.
 - Where the app draws its own window buttons in the bar (`window().buttons`): minimize, maximize or restore, close, 26px each. On Windows they are 16px line icons.
 
 **How it behaves:**
@@ -27,7 +27,7 @@ Left to right, in a bar drawn for a 42px high block, on the `chrome` background 
 - Drag a tab: the dragged tab goes to 50% opacity and a 2px `accent` line marks the gap where it will land: after a tab when the pointer is over its right half, before it over its left half. Releasing moves it there; no line shows while the drop would leave it where it is. Releasing outside the tabs cancels.
 - Scroll wheel over the bar: previous or next tab, as shipped.
 - "+": opens the `run-menu` popup when that mod is installed, the shipped `new-menu` popup otherwise.
-- Files, Changes, Keys: show that panel, or hide the panel when it is the one showing. Which panel a space had open is remembered per space, Keys included.
+- Files, Changes, Git, Keys: show that panel, or hide the panel when it is the one showing. Which panel a space had open is remembered per space, Git and Keys included.
 - `timed-tabs.close`: closes the active tab of the active space, the same way the cross does.
 - Closing a Run tab (cross, middle click or `timed-tabs.close`): when the `run-configurations` mod reports running processes for that space, the first close asks that tab to stop them and close itself; a second close of the same tab closes it at once. Any other tab closes at once.
 - `timed-tabs.run`: only when `run-configurations` is installed. Selects the active space's tab that holds `run-configurations` or is named "Run", or opens a new tab named "Run" with that mod. It starts no process.
@@ -36,7 +36,7 @@ Left to right, in a bar drawn for a 42px high block, on the `chrome` background 
 **Built from:**
 
 - One mod, `mods/timed-tabs/` (`main.js`, `win-min.svg`, `win-max.svg`, `win-restore.svg`, `win-close.svg`, `mod.json`), a clone of the shipped `tabs` mod 0.1.16. `mod.json`: `{ "place": "none", "title": "Tabs", "cloned_from": { "name": "tabs", "version": "0.1.16" } }`. It takes no `props`. Start from the shipped `tabs/main.js` and add what follows.
-- Layout: the block where `tabs` was, `"content": { "mod": "timed-tabs" }`, with `"size": { "px": 42 }` (the shipped bar is 30px) and `"window_drag": true`. The Keys button needs a child block with id `shortcuts` in the `panel-body` stack.
+- Layout: the block where `tabs` was, `"content": { "mod": "timed-tabs" }`, with `"size": { "px": 42 }` (the shipped bar is 30px) and `"window_drag": true`. The Keys button needs a child block with id `shortcuts` in the `panel-body` stack, the Git button one with id `graph`.
 - Tabs: `.h_full()` in place of `h(29)`, no `rounded`, `.border_r(1)` in `border` in place of the 1px box (plus `.border_l(1)` on the first tab when the macOS padding applies), no `gap` on the `tab-scroll` row, and a left padding of 0 where the shipped bar uses 10.
 - Timer: `agents().find(a => a.tab === tab.id && a.status === "working")`, then `shared("agents.changed")?.[address]?.at`, falling back to a time kept in memory per tab. `cx.timer.every(30000)` redraws.
 - Drag: `on_mouse_move` on each tab works out the slot from `e.local_position.x` against `e.bounds.width / 2` and stores it; the line is an absolutely placed 2px `div` on the tab before the slot (on the left of the first tab for slot 0). The drop runs `tab.move` with the 1-based index of the tab at the landing place.
@@ -44,8 +44,9 @@ Left to right, in a bar drawn for a 42px high block, on the `chrome` background 
 - Commands, read in a `nextCommand()` loop: `run` and `close`. `run` uses `tab.select`, or `tab.new` with `{ name: "Run", space, mod: "run-configurations", props: { folder, space } }`, where `folder` is the focused pane's `cwd` or the space's folder.
 - Other mods: found once in `init` by reading `mods/run-menu/main.js` and `mods/run-configurations/main.js` under `appHome()` with `readTextFile`. "+" opens `{ mod: "run-menu", kind: "popup", width: 250, height: 543 }` or `{ mod: "new-menu", kind: "popup", width: 250, height: 512 }`.
 - Keys button: shown when `find(layout(), "panel-body")` has a child with id `shortcuts`; `shortcuts` is then added to the list from `shared("workspace.panels")` (default `["files", "changes"]`) that the per-space memory accepts. It runs `layout.select` with `{ stack: "panel-body", child: "shortcuts" }` and `layout.show` with `{ id: "panel" }`, or `layout.hide`.
+- Git button: the same for a child with id `graph`, which holds the `git-graph` mod of https://github.com/rabeeh-ta/herdr-git-graph. It comes after Changes and before Keys.
 - Other `herdr` calls: `spaces`, `panes`, `theme`, `window`, `settings`, `openOverlay`; commands `tab.prev`, `tab.next`, `tab.rename`, `window.minimize`, `window.maximize`, `window.close`. `localStorage`: `panels`.
-- Art: its own four 16px window icons with a 1px stroke in `currentColor`, at `mods/timed-tabs/win-*.svg`. From other mods: `mods/workspace-chrome/spinner.svg`, `mods/pane/close.svg`, `mods/files/file.svg`, `mods/changes/changes.svg`, `mods/shortcuts/keyboard.svg`, and the shipped `menu` mod for the right-click menu.
+- Art: its own four 16px window icons with a 1px stroke in `currentColor`, at `mods/timed-tabs/win-*.svg`. From other mods: `mods/workspace-chrome/spinner.svg`, `mods/pane/close.svg`, `mods/files/file.svg`, `mods/changes/changes.svg`, `mods/shortcuts/keyboard.svg`, `mods/git-graph/icons/graph.svg`, and the shipped `menu` mod for the right-click menu.
 
 **Watch out:**
 
@@ -58,7 +59,7 @@ Left to right, in a bar drawn for a 42px high block, on the `chrome` background 
 - `cx.notify()` is needed on mouse move and mouse up for the drop line to appear and go; only notify when the slot changes, or every pointer move redraws the bar.
 - A tab can only be dropped on a tab. To move one to the end, release over the right half of the last tab.
 - The waiting close only works with `run-configurations`: it must keep `run-configs.live` up to date and act on `run-configs.close`. A stale `run-configs.live` entry would leave the first close without effect.
-- The Keys icon is read from the `shortcuts` mod's folder; the button shows by the layout node alone, so a layout with the block but without the mod shows a button whose icon file is missing.
+- The Keys icon is read from the `shortcuts` mod's folder and the Git icon from the `git-graph` mod's; each button shows by the layout node alone, so a layout with the block but without the mod shows a button whose icon file is missing.
 - Dragging and the timer cannot be checked from `herdr-app shot`; they need a person.
 
 **Done when:**
@@ -68,5 +69,5 @@ Left to right, in a bar drawn for a 42px high block, on the `chrome` background 
 - A tab whose agent is working shows "<1m" and after a minute "1m" next to the spinner; the timer goes when the agent stops.
 - Dragging the first tab over the right half of the third shows a 2px line after the third and drops it there.
 - A middle click on a tab that is not active closes it.
-- With a `shortcuts` child in `panel-body` a Keys button shows after Changes, opens that panel and hides it on a second click; without the child there is no button.
+- With a `shortcuts` child in `panel-body` a Keys button shows after Changes, opens that panel and hides it on a second click; without the child there is no button. The same holds for a `graph` child and the Git button.
 - With only this mod installed, "+" opens the shipped menu and `timed-tabs.run` does nothing.

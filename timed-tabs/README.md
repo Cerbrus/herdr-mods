@@ -13,6 +13,7 @@ Herdr's tab bar, with a timer on every tab whose agent is working.
 - **It picks up the other mods from this repository** when they are installed, and works without them:
   - The `+` opens the menu of [Run Configurations](../run-configurations), with its "Start a run config…" row. Otherwise Herdr's own menu.
   - A Keys button opens the [Shortcuts](../shortcuts) panel.
+  - A Git button opens [Git Graph](https://github.com/rabeeh-ta/herdr-git-graph), a mod from another repository, when your layout has it in the side panel.
   - Closing a Run tab waits for its processes to stop.
 
 The rest is Herdr's tab bar: click to select, double click to rename, right click for the menu, scroll to move through tabs, and the Files and Changes buttons.

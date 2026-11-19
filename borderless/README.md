@@ -24,10 +24,11 @@ Herdr's main layout with everything flush: square panes and panels that sit agai
   | Spaces list | [Space Folders](../space-folders) | Herdr's Spaces list |
   | Agents list | [Agent Cards](../agent-cards) | Herdr's Agents list |
   | Tab bar | [Timed Tabs](../timed-tabs) | The flat tab bar that comes with the layout |
-  | Side panel, third page | [Shortcuts](../shortcuts) | Left out |
+  | Side panel, Git page | [Git Graph](https://github.com/rabeeh-ta/herdr-git-graph), from another repository | Left out |
+  | Side panel, Keys page | [Shortcuts](../shortcuts) | Left out |
   | Bar under the terminals | [PR Inbox](../pr-inbox) | Left out |
 
-The picture at the top shows the layout with all of them.
+The picture at the top shows the layout with all of them but Git Graph.
 
 ## What is in it
 
