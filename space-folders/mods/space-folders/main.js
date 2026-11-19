@@ -470,12 +470,10 @@ export default class Spaces extends View {
     };
     const st = state();
     const shown = rows.find((r) => r.w.active);
-    const looking = shown ? `${shown.w.id}:${(shown.w.tabs ?? []).find((c) => c.active)?.id}` : null;
-    if (looking !== this.looking) {
-      this.looking = looking;
-      let unfolded = false;
-      for (let id = shown?.folder; id; id = parentOf(st, id)) unfolded = this.foldersFolded.delete(id) || unfolded;
-      if (unfolded) localStorage.setItem(FOLDED_KEY, JSON.stringify([...this.foldersFolded]));
+    if (shown && shown.w.id !== this.looking) {
+      this.looking = shown.w.id;
+      this.peeked = new Set();
+      for (let id = shown.folder; id; id = parentOf(st, id)) if (this.foldersFolded.has(id)) this.peeked.add(id);
     }
     for (const r of rows) if (!r.folder) add(r, null);
     // `trail`: for the folder and each folder around it, outermost first, whether it is the last one at its level.
@@ -485,7 +483,7 @@ export default class Spaces extends View {
       const mine = rows.filter((r) => r.folder === f.id);
       const subs = childrenOf(st, f.id);
       const siblings = childrenOf(st, f.parent).map((k) => k.id);
-      const folded = this.foldersFolded.has(f.id);
+      const folded = this.foldersFolded.has(f.id) && !this.peeked?.has(f.id);
       const asks = within.find((r) => r.w.status === "blocked") ?? within.find((r) => r.w.status === "done");
       const key = `folder:${f.id}`;
       const spot = (name) => {
@@ -519,7 +517,7 @@ export default class Spaces extends View {
           const pressed = this.pressedFolder;
           this.pressedFolder = null;
           this.over = null;
-          if (pressed === f.id) {
+          if (pressed === f.id && !this.peeked?.delete(f.id)) {
             folded ? this.foldersFolded.delete(f.id) : this.foldersFolded.add(f.id);
             localStorage.setItem(FOLDED_KEY, JSON.stringify([...this.foldersFolded]));
           }

@@ -7,7 +7,7 @@ The Spaces list of the Herdr sidebar as a tree: put your spaces in folders, nest
 ## What you get
 
 - **Folders for spaces**, up to three levels deep, each with a count of what is in it.
-- **Fold a folder** with a click on its header. A folded folder opens by itself when you go to a space, tab or agent inside it.
+- **Fold a folder** with a click on its header. Go to a space inside a folded folder and the folder opens for as long as you are there, then folds again when you leave. Your folds only change when you click.
 - **Drag and drop.** Drag a space onto a folder header, or onto a space in that folder, to put it there. Drag it onto a loose space, or below the list, to take it out. Drag a folder header onto another: the top or bottom edge puts it before or after, the middle puts it inside.
 - **A menu on every folder** (right click): New space, New folder, Rename, Move to, Move up, Move down, Delete.
 - **New spaces land where you ask.** "New space" in a folder's menu opens the [Project Picker](../project-picker), and the space you pick goes into that folder.

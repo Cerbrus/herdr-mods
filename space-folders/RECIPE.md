@@ -24,7 +24,7 @@ When the sidebar is narrower than 160px the list is the shipped rail: numbered c
 Agent status: space rows do not show it, as in the shipped list. A folded folder shows a `●` before its count when a space in it or under it is `blocked`, or else `done`, in the theme's colour for that status. `working` and `idle` show nothing on a folder. In the rail each cell shows `●` for `blocked` and `done` and `·` otherwise, as shipped.
 
 - **Click a folder header**: folds or unfolds it. A folded folder hides its spaces and subfolders. Which folders are folded is remembered.
-- **Going to a space or tab inside folded folders** (by any route) unfolds every folder around it.
+- **Going to a space inside folded folders** (by any route) shows every folder around it open for as long as that space is the shown one. The folders stay in the folded set: going to another space folds them again. A click on a folder opened this way folds it at once, while you are still in it.
 - **Folder button in the header**: opens the name dialog for a new top-level folder. Enter or Save makes it, Esc or Cancel does not. An empty name does nothing.
 - **Plus button in the header**: opens the `project-picker` picker. The new space is loose.
 - **Right-click a folder header**: its menu. Up and down move the selection, Enter chooses, Esc closes, a click chooses.
@@ -82,7 +82,7 @@ A clone of the shipped `spaces` mod, version 0.1.16 (`mod.json`: `"place": "none
 - `herdr-app check` passes on the mod folder, and the sidebar shows `Spaces` with a folder button and a plus button.
 - The folder button opens "New folder"; typing a name and pressing Enter adds a header with the count `0`.
 - Dragging a space onto that header moves it under the header on a guide line, and the count becomes `1`.
-- Clicking the header hides the space and turns the chevron right; selecting that space another way unfolds it again.
+- Clicking the header hides the space and turns the chevron right; selecting another space and coming back shows the folder open again, and leaving folds it.
 - Right-clicking the header shows the menu; Delete reads "not empty" while a space is inside and removes the folder once it is empty.
 - "New folder" in the menu nests a folder; at the third level the item is no longer offered.
 - Dragging one header onto another shows a line on its top or bottom edge, or highlights its middle, and the folder lands there.
