@@ -10,15 +10,16 @@ One folder per item, laid out like the app's home (`~\.config\herdr-app`), which
 <item>/
   mods/<name>/     main.js, mod.json, assets, maybe config.js
   keys.json        the keys the item expects (optional)
-  RECIPE.md        the brief another agent builds it from
-  preview.png
-borderless/layouts/borderless.json   the layout
+  README.md        for people: what it does, pictures, setting it up, using it
+  RECIPE.md        for agents: the brief another agent builds it from
+  preview.png      plus any other picture the README shows
+borderless/        the layout (layouts/borderless.json) with its own three mods
 upstream/          shipped files the clones were made from; never edit by hand
 Install.ps1        copies items to the app, merges keys, fits the layout; -Pull copies back
 Merge-Upstream.ps1 three-way merges a Herdr update into the clones; Install.ps1 runs it first
 ```
 
-`run-configurations` holds two mods (`run-configurations` and `run-menu`). What an item needs is the `$needs` table at the top of `Install.ps1`; keep it, the README table and the recipes in step.
+Folders and mod ids are the readable names (`agent-cards` is Agent Cards). `run-configurations` holds two mods (`run-configurations` and `run-menu`), `borderless` three (`borderless-files`, `borderless-changes`, `borderless-tabs`). People install mostly through their Herdr agent, pointed at an item's folder on GitHub, so everything an agent needs to add an item must be in that folder. What an item needs is the `$needs` table at the top of `Install.ps1`; keep it, the README table and the recipes in step.
 
 ## Rules
 
@@ -27,12 +28,13 @@ Merge-Upstream.ps1 three-way merges a Herdr update into the clones; Install.ps1 
 - **Keys go in the item's `keys.json`**, not in `Install.ps1`. A key in the `global` section must be free in Herdr's defaults or the installer leaves it alone without `-Rebind`.
 - **Scripts are Windows PowerShell 5.1 compatible**, non-elevated and idempotent: no `&&`/`||`, no ternary or null-coalescing, `$PSScriptRoot` for paths. Test the installer against a copy of the app home: `$env:HERDR_APP_HOME = '<copy>'`.
 - **Mod work happens in the live folder**, which the app hot-reloads, and is pulled afterwards with `Install.ps1 -Pull`. Verify with `herdr-app check <mod folder>` and `herdr-app shot`; the app's own reference is `~\.config\herdr-app\AGENTS.md`. `herdr-app` is at `%LOCALAPPDATA%\Programs\herdr-app\herdr-app.exe` when it is not on PATH.
-- **A changed mod gets its `RECIPE.md` and the README brought up to date** in the same change.
-- **Previews are public.** A screenshot of a real window shows space names, branch names and pull request titles. Take previews from a window with nothing private in it.
+- **A changed mod gets its `README.md` and `RECIPE.md` brought up to date** in the same change, and the root README when the change shows there.
+- **The flat tab look exists twice**, in `borderless-tabs` and in `timed-tabs`. Change it in both.
+- **Previews are public.** A screenshot of a real window shows space names, branch names and pull request titles. Take previews from a second Herdr with demo data: start `herdr-app` with `HERDR_APP_HOME` set to a short scratch folder (its socket path has a length limit) and `HC_SESSION` set to a name of its own, with the `HC_*` variables of the current terminal unset. It gets its own core and none of the real spaces. Install into it with `Install.ps1`, open spaces on scratch repositories with `herdr-app do space.new`, and fake an agent with a script that prints `ESC ] 7501 ; state=working:app=claude-code ESC \`. Stop it with `herdr-app do window.close` and `hc server stop`, both with the same variables set.
 
 ## How the mods fit together
 
-- `space-folders` and `borderless` are clones of the shipped `spaces` mod and `main` layout; `agent-cards`, `timed-tabs`, `borderless-files`, `borderless-changes` and `run-menu` are clones of `agents`, `tabs`, `files`, `changes` and `new-menu`. The app never updates clones, and shipped mods must not be edited directly.
+- Clones of what Herdr ships: `space-folders` (`spaces`), `agent-cards` (`agents`), `timed-tabs` and `borderless-tabs` (`tabs`), `borderless-files` (`files`), `borderless-changes` (`changes`), `run-menu` (`new-menu`) and the `borderless` layout (`main`). The app never updates clones, and shipped mods must not be edited directly.
 - `space-folders` keeps its folder menu and dialogs inside itself (`folder-edit.js`) and opens itself as an overlay with `props.mode`. `spaces.folders` in the shared state holds the folders; `spaces.folders.incoming` is how `project-picker` tells the list which folder a new space belongs in.
 - `agent-cards` draws agents as cards with a DiceBear avatar and a context bar. The bar reads `data\claude-statusline\<HC_TERMINAL_ID>.json` under the app's folder, which a Claude Code status line script outside this repo writes. An agent idle for over 16 hours sleeps: its avatar is the upright SVG rewritten to lie in a bed under a sheet, cached as a second file, with Z's (`z.svg`) rising from its head. It puts `agents.changed` in the shared state.
 - `timed-tabs` shows a timer per working tab from `agents.changed`, or from when it first saw the tab working. Its `+` opens `run-menu` when that is installed, else `new-menu`; its Keys button shows when `panel-body` has a `shortcuts` child.

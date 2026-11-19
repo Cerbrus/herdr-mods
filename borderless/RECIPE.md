@@ -71,9 +71,9 @@ What differs from the shipped `main`:
 - `panel-body` has a third child, `shortcuts`.
 - `work-main` is new: a column around `work-body` and the new `prs` block.
 
-Mods from this repo, each a sibling folder with its own recipe: `space-folders`, `agent-cards`, `timed-tabs`, `borderless-files`, `borderless-changes`, `shortcuts`, `pr-inbox`. Shipped mods used as they are: `workspace-chrome` (twice, the footer with `props.footer`), `pane`, `workspace-status`. The layout passes no other `props`, runs no programs and has no art.
+Mods that come with the layout, in this folder's `mods/` (described at the end of this recipe): `borderless-files`, `borderless-changes` and `borderless-tabs`. Mods it shows when they are installed, each a sibling folder of this repo with its own recipe: `space-folders`, `agent-cards`, `timed-tabs`, `shortcuts`, `pr-inbox`. Shipped mods used as they are: `workspace-chrome` (twice, the footer with `props.footer`), `pane`, `workspace-status`. The layout passes no other `props`, runs no programs and has no art.
 
-Fitting it to what is installed: the repo's `Install.ps1 -Layout` writes the layout so that a block whose mod is not installed shows the shipped mod it was cloned from (`spaces`, `agents`, `tabs`, `files`, `changes`), and leaves the `shortcuts` and `prs` blocks out when those mods are missing, as they have no shipped original. An agent adding the layout by hand does the same.
+Fitting it to what is installed: the repo's `Install.ps1 -Layout` writes the layout so that a block whose mod is not installed shows what stands in for it (`spaces` for `space-folders`, `agents` for `agent-cards`, `borderless-tabs` for `timed-tabs`), and leaves the `shortcuts` and `prs` blocks out when those mods are missing, as they have no shipped original. An agent adding the layout by hand does the same.
 
 ## Watch out
 
