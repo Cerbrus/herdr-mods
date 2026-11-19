@@ -18,9 +18,27 @@ Sorting, pinning, sub-agents and the narrow rail work as in Herdr's own Agents l
 
 Ask your agent in Herdr:
 
-> Add the mod from https://github.com/Cerbrus/herdr-mods/tree/master/agent-cards and show it in place of the Agents list.
+> Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/agent-cards
+>
+> Show it in place of the Agents list.
+
+The agent asks which avatars you want before it installs: see [Pick your own avatars](#pick-your-own-avatars).
 
 Or with PowerShell, from a clone of this repository: `.\Install.ps1 agent-cards`. Add `-Layout` to get the [Borderless Layout](../borderless) with it.
+
+## Pick your own avatars
+
+The robots are [DiceBear](https://www.dicebear.com)'s "Voxel Bot" style, in four body colours. They are one choice out of many: browse the [styles](https://www.dicebear.com/styles/) and tell your agent which one you want when you ask for the mod. Every style has options of its own (colours, hair, eyes, mouth, accessories), which you can try in the [playground](https://www.dicebear.com/playground/).
+
+Styles that also look right lying in the bed of a sleeping agent, because they are a head or a figure seen from the front:
+
+- [Voxel Art](https://www.dicebear.com/styles/voxel-art/)
+- [Personas](https://www.dicebear.com/styles/personas/)
+- [Pixel Art](https://www.dicebear.com/styles/pixel-art/)
+- [Toon Head](https://www.dicebear.com/styles/toon-head/)
+- [Avataaars](https://www.dicebear.com/styles/avataaars/)
+
+The bed and the sheet are drawn onto the Voxel Bot picture, so another style needs them fitted again. Your agent does that as part of the change; ask it to show you a sleeping avatar before you settle.
 
 ## Keys
 

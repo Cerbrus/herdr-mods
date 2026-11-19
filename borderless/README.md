@@ -44,13 +44,13 @@ One layout and three mods of its own. All four are clones of what Herdr ships, c
 
 Ask your agent in Herdr:
 
-> Add the layout from https://github.com/Cerbrus/herdr-mods/tree/master/borderless with the three mods in its folder, and switch to it.
+> Read ~/.config/herdr-app/AGENTS.md, then add this layout: https://github.com/Cerbrus/herdr-mods/tree/master/borderless
 
-To get everything in the picture, ask for the whole repository instead:
+To get more of what is in the picture, have the agent go through the repository with you:
 
-> Add the layout and all the mods from https://github.com/Cerbrus/herdr-mods, and switch to the borderless layout.
+> Read ~/.config/herdr-app/AGENTS.md, then add this layout: https://github.com/Cerbrus/herdr-mods/tree/master
 
-Or with PowerShell, from a clone of this repository: `.\Install.ps1 borderless` for the layout alone, `.\Install.ps1` for everything.
+Or with PowerShell, from a clone of this repository: `.\Install.ps1 borderless` for the layout alone, `.\Install.ps1` for everything, without asking.
 
 ## Using it
 

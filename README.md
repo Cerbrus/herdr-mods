@@ -1,6 +1,6 @@
 # herdr-mods
 
-Mods and a layout for the [Herdr](https://herdr.dev) desktop app. Take the whole set or one mod at a time.
+Mods and a layout for the [Herdr](https://herdr.dev) desktop app. This is how one person set up their Herdr, shared as inspiration: take one mod, take a few, or have your agent build your own version of one. Nothing here expects to be installed as a whole.
 
 ![Herdr with every mod of this repository](preview.png)
 
@@ -25,20 +25,24 @@ Each folder has a `README.md` with pictures, how to set it up and how to use it.
 
 Herdr's agents know how to add a mod from a GitHub folder. Ask the one in your Herdr window:
 
-> Add the mod from https://github.com/Cerbrus/herdr-mods/tree/master/agent-cards and show it in place of the Agents list.
+> Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/agent-cards
 
-Each mod's README has the sentence to use for it. For everything at once:
+Each mod's README has the sentence to use for it. To look at the whole set and pick:
 
-> Add the layout and all the mods from https://github.com/Cerbrus/herdr-mods, and switch to the borderless layout.
+> Read ~/.config/herdr-app/AGENTS.md, then add this layout: https://github.com/Cerbrus/herdr-mods/tree/master
 
-The agent reads the `RECIPE.md` of the folder and every file in it, tells you what the mod runs or fetches, copies it into `~/.config/herdr-app/mods`, adds its keys to your `keys.json` and checks that it loads. Your own layout and keys stay as they were unless you ask for a change.
+The agent goes through the list with you, asks which mods you want, whether you want the layout, and what each mod needs to know from you. Nothing is installed until you have answered. The `RECIPE.md` at the top of the repository tells it to do so even when you ask for "all the mods".
+
+You can also ask for a variation: "like Agent Cards, but with pixel art people" or "the PR Inbox, but for GitLab". The recipes describe each mod well enough for an agent to build it differently.
+
+For a mod you chose, the agent reads the `RECIPE.md` of the folder and every file in it, tells you what the mod runs or fetches, copies it into `~/.config/herdr-app/mods`, adds its keys to your `keys.json` and checks that it loads. Your own layout and keys stay as they were unless you ask for a change.
 
 ### With PowerShell
 
 Clone the repository anywhere, then:
 
 ```powershell
-.\Install.ps1                                # everything, with the layout
+.\Install.ps1                                # everything, with the layout, without asking
 .\Install.ps1 agent-cards, pr-inbox -Layout  # two mods, in the Borderless Layout
 .\Install.ps1 project-picker -Rebind         # one mod, in your own layout
 .\Install.ps1 -List                          # the items and what each needs

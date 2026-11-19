@@ -4,6 +4,17 @@ The Agents list of the sidebar, with every agent drawn as a card: a pixel robot 
 
 ![Agent Cards](preview.png)
 
+**Ask before you install:**
+
+The avatars are a matter of taste, so let the person choose them. Before copying the mod:
+
+1. Tell them the avatars come from DiceBear and that the mod as written uses the "Voxel Bot" style. Give the links: https://www.dicebear.com/styles/ for all styles and https://www.dicebear.com/playground/ to try the options of one.
+2. Name the styles that also suit the bed of a sleeping agent, because they draw a head or a figure from the front: "Voxel Art" (`voxel-art`), "Personas" (`personas`), "Pixel Art" (`pixel-art`), "Toon Head" (`toon-head`) and "Avataaars" (`avataaars`). Any other style is theirs to pick too.
+3. Say that every style has options of its own (colours and parts as query parameters) and ask whether they want any set.
+4. Wait for the answer. "As it is" is a fine answer.
+
+For another style, change `AVATAR_URL` in `main.js` (`https://api.dicebear.com/10.x/<style>/svg?<options>&seed=`) and fit the sleeping avatar to it, as described under "Sleeping avatar" below and in "Watch out". Show the person a sleeping avatar with `herdr-app shot` before calling it done.
+
 **What you see:**
 
 - A 41px header: "Agents" (11.5px, medium, `dim`) on the left and a 14px sort icon on the right. As in the shipped list.
@@ -53,6 +64,7 @@ The Agents list of the sidebar, with every agent drawn as a card: a pixel robot 
 - `.transition()` only animates while the Windows setting "Animation effects" (Settings > Accessibility > Visual effects) is on. With it off each Z only flashes for 50ms and then jumps to size 0.
 - Several transitions on one element were never seen working: give each animated property its own nested element with its own `id`.
 - The sleeping rewrite depends on the exact text of the fetched SVG (the flip group, the closing `</g></svg>`, `id="eyes-`). If the service changes its output the sleeping file comes out as the upright robot without a bed.
+- With another DiceBear style none of that text is there. Fetch one avatar of the style, read its SVG, and rewrite `tuckIn()`, `BODY_COLORS` (which fails at load when the URL has no `bodyColor`) and `eyeColor()` for it: which group to turn, which colour the sheet takes (a clothing or skin colour where there is no `bodyColor`), which colour the Z's take. The bed is drawn for a 128-unit picture; scale it when the style's `viewBox` differs. Change the `-asleep-bed5` suffix so old sleeping files are not reused.
 - The avatar follows the space name and tab name: renaming either gives the agent a new robot (one more fetch), and two agents in one tab share a robot.
 - The context bar needs the status line script. Without it the bar stays empty. Files are only read for local terminals (ids of letters, digits, `_` and `-`), and only when the folder changes, so a new agent's bar fills at the next write of any file there.
 - A failed fetch (offline) leaves the `raised` square and is not retried until the mod reloads.

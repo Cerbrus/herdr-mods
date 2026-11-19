@@ -21,7 +21,9 @@ The rest is Herdr's tab bar: click to select, double click to rename, right clic
 
 Ask your agent in Herdr:
 
-> Add the mod from https://github.com/Cerbrus/herdr-mods/tree/master/timed-tabs and show it in place of the tab bar, in a block 42px high.
+> Read ~/.config/herdr-app/AGENTS.md, then add this mod: https://github.com/Cerbrus/herdr-mods/tree/master/timed-tabs
+>
+> Show it in place of the tab bar, in a block 42px high.
 
 Or with PowerShell, from a clone of this repository: `.\Install.ps1 timed-tabs`. Add `-Layout` to get the [Borderless Layout](../borderless) with it.
 
