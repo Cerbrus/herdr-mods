@@ -1,13 +1,11 @@
 import { View, div, svg } from "gpui-kit";
 import { v_flex, h_flex, Scrollbar } from "gpui-base";
 import { exec, theme, run, layout, props, checking, spaces, agents, panes, notify } from "herdr";
+import * as config from "./config.js";
 
-const OWNER = "Baseflow";
-const REPOS = /^(asito|mtp)-/;
+const OWNER = config.OWNER ?? "", REPOS = config.REPOS ?? null, ROOTS = config.ROOTS ?? [], ARGV = config.ARGV ?? ["claude"];
 const BAR = 28, SEAM = 1, ROW = 24, MAX_ROWS = 8;
 const REFRESH_MS = 5 * 60 * 1000, TICK_MS = 60 * 1000;
-const ROOTS = ["C:\\DEV", "C:\\DEV\\~Cerbrus"];
-const ARGV = ["claude"];
 const AGENT_WAIT_MS = 90 * 1000;
 const TASK_ICON = "icons/agent.svg";
 const TASKS = { review: (number) => `Review #${number}`, mine: (number) => `Handle feedback on #${number}`, merge: (number) => `Merge #${number}`,
@@ -86,13 +84,13 @@ function reviewAction(me, { requests, latest, standing }) {
 function entry(node, kind, me) {
   const found = facts(node);
   const [flag, action, actionable] = kind === "mine" ? authoredAction(node, found) : reviewAction(me, found);
-  return { kind, id: `${kind}-${node.repository.name}-${node.number}`, url: node.url, label: `${node.repository.name.replace(REPOS, "")}#${node.number}`,
+  return { kind, id: `${kind}-${node.repository.name}-${node.number}`, url: node.url, label: `${REPOS ? node.repository.name.replace(REPOS, "") : node.repository.name}#${node.number}`,
     repo: node.repository.name, number: node.number, title: node.title, updated: node.updatedAt, flag, action, reviewers: found.reviewers,
     task: actionable ? TASKS[TASKS[actionable] ? actionable : /^dependabot/.test(node.author?.login) ? "dependabot" : kind](node.number) : null };
 }
 
 function overview(data) {
-  const me = data.viewer.login, scoped = (nodes) => nodes.filter((node) => node?.repository && REPOS.test(node.repository.name));
+  const me = data.viewer.login, scoped = (nodes) => nodes.filter((node) => node?.repository && (!REPOS || REPOS.test(node.repository.name)));
   const order = (entries) => entries.sort((a, b) => URGENCY.indexOf(a.flag) - URGENCY.indexOf(b.flag) || b.updated.localeCompare(a.updated));
   const seen = new Set();
   const incoming = scoped([...data.requested.nodes, ...data.reviewed.nodes]).filter((node) => node.author?.login !== me && !seen.has(node.url) && seen.add(node.url));
@@ -117,7 +115,7 @@ export default class PullRequests extends View {
     cx.notify();
     cx.spawn(async (cx) => {
       try {
-        const search = (filter) => `org:${OWNER} is:pr is:open ${filter}`;
+        const search = (filter) => `${OWNER ? `org:${OWNER} ` : ""}is:pr is:open ${filter}`;
         const result = await exec("gh", ["api", "graphql", "-f", `query=${QUERY}`, "-f", `mine=${search("author:@me")}`,
           "-f", `requested=${search("review-requested:@me")}`, "-f", `reviewed=${search("reviewed-by:@me")}`], { timeout: 60000 });
         if (result.code) throw new Error(result.stderr.trim().split("\n")[0] || `gh exited with ${result.code}`);
@@ -174,7 +172,7 @@ export default class PullRequests extends View {
       const folder = await this.folderFor(item.repo);
       if (!folder) {
         this.pending = null;
-        notify({ title: `No folder for ${item.repo}`, body: `Looked in ${ROOTS.join(" and ")}`, level: "warning" });
+        notify({ title: `No folder for ${item.repo}`, body: ROOTS.length ? `Looked in ${ROOTS.join(" and ")}` : "List your project folders as ROOTS in mods/prs-panel/config.js", level: "warning" });
         return;
       }
       run("space.new", { folder, argv: ARGV });

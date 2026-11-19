@@ -1,4 +1,4 @@
-// Opens a folder as a space. Lists the folders under the roots in roots.js,
+// Opens a folder as a space. Lists the folders under the roots in config.js,
 // narrowed by what is typed; a typed full path is offered as it is. Enter
 // opens the chosen folder as a new space running ARGV, or shows the space that
 // is already open there. Up/down move, Esc closes. Opened with props { folder }
@@ -7,7 +7,9 @@
 import { View, div, svg } from "gpui-kit";
 import { v_flex, h_flex, InputState, Input, ScrollHandle } from "gpui-base";
 import { spaces, run, exec, theme, props, closeOverlay, checking, shared, setShared } from "herdr";
-import { ROOTS, ARGV } from "./roots.js";
+import * as config from "./config.js";
+
+const ROOTS = config.ROOTS ?? [], ARGV = config.ARGV ?? ["claude"];
 
 const ROW = 32, AROUND = 150, WINDOW_SHARE = 0.7;
 
@@ -95,7 +97,7 @@ export default class SpaceOpen extends View {
         .child(Input.new(this.input).flex_1().h_full().text_size(12.8).text_color(t.foreground)))
       .child(v_flex().id("so-list").h(Math.min(room, Math.max(1, rows.length) * ROW)).min_h(0).overflow_y_scrollbar().track_scroll(this.scroll)
         .when(!rows.length, (el) => el.child(div().px(10).py(8).text_color(t.dim)
-          .child(this.loading ? "Looking for folders…" : "No folder matches. Type a full path to open it.")))
+          .child(this.loading ? "Looking for folders…" : ROOTS.length ? "No folder matches. Type a full path to open it." : "Type a full path to open it. List your project folders in mods/space-open/config.js to pick from them.")))
         .children(rows.map((r, i) => h_flex().id(`so-${i}`).h(ROW).flex_none().px(10).gap(10).rounded(7).items_center().cursor_pointer()
           .when(i === this.at, (el) => el.bg(t.selected))
           .hover((s) => s.bg(t.hover))

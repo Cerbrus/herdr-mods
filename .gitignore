@@ -1,0 +1,9 @@
+# Files the Herdr app writes into mod folders
+*.error
+jsconfig.json
+*.d.ts
+
+# OS / editor junk
+Thumbs.db
+Desktop.ini
+*.swp

@@ -1,6 +1,6 @@
 import { View, div, svg, image } from "gpui-kit";
 import { h_flex, ScrollHandle } from "gpui-base";
-import { spaces, panes, agents, run, openOverlay, theme, window, shared, setShared, nextCommand, layout, settings } from "herdr";
+import { spaces, panes, agents, run, openOverlay, theme, window, shared, setShared, nextCommand, layout, settings, appHome, readTextFile } from "herdr";
 
 function find(node, id) {
   if (node?.id === id) return node;
@@ -55,7 +55,7 @@ export default class Tabs extends View {
     cx.spawn(async () => {
       for (;;) {
         const command = await nextCommand();
-        if (command === "run") showRunConfigs();
+        if (command === "run" && this.installed["run-configs"]) showRunConfigs();
         else if (command === "close") closeTab(spaces().find(s => s.active)?.tabs.find(t => t.active)?.id);
       }
     });
@@ -65,6 +65,18 @@ export default class Tabs extends View {
     try { this.panels = JSON.parse(localStorage.getItem("panels") ?? "{}"); } catch { this.panels = {}; }
     if (!this.panels || typeof this.panels !== "object" || Array.isArray(this.panels)) this.panels = {};
     this.swipe = { acc: 0, steps: 0, at: 0, last: 0 };
+    this.working = {};
+    this.installed = {};
+    cx.spawn(async (cx) => {
+      for (const name of ["new-menu-run", "run-configs"]) this.installed[name] = Boolean(await readTextFile(`${appHome()}/mods/${name}/main.js`).catch(() => null));
+      cx.notify();
+    });
+  }
+
+  since(tab) {
+    const worker = agents().find(a => a.tab === tab.id && a.status === "working");
+    if (!worker) { delete this.working[tab.id]; return null; }
+    return shared("agents.changed")?.[worker.address]?.at ?? (this.working[tab.id] ??= Date.now());
   }
 
   // One tab per wheel notch. A touchpad or smooth-scrolling mouse sends many
@@ -139,8 +151,7 @@ export default class Tabs extends View {
       const lead = panes().find(p => p.tab === c.id && p.program?.agent) ?? panes().find(p => p.tab === c.id);
       const program = lead?.program;
       const name = label(c, lead);
-      const worker = c.status === "working" ? agents().find(a => a.tab === c.id && a.status === "working") : null;
-      const since = worker ? shared("agents.changed")?.[worker.address]?.at : null;
+      const since = this.since(c);
       return h_flex().id(`tab-${c.id}`).relative().h_full().px(10).gap(7).items_center().flex_none().text_size(12.8)
         // A rename or status dot on this or an earlier tab can push the active one out.
         .when(i <= active, el => el.on_size_change((_size, cx) => { this.scroll.scroll_to_item(active); cx.notify(); }))
@@ -175,7 +186,8 @@ export default class Tabs extends View {
       ? Math.max(10, (root.traffic_lights[0] + 64) / settings().zoom - (sidebar?.hidden ? 0 : sidebar?.size?.px ?? 0))
       : 0;
     const panel = find(root, "panel"), body = find(root, "panel-body");
-    const enabled = [...(shared("workspace.panels") ?? ["files", "changes"]), "cheatsheet"];
+    const keys = Boolean(find(body, "cheatsheet"));
+    const enabled = [...(shared("workspace.panels") ?? ["files", "changes"]), ...(keys ? ["cheatsheet"] : [])];
     this.syncPanel(space, panel, body, enabled);
     const panelButton = (id, label, icon) => {
       const on = panel && !panel.hidden && body?.active === id;
@@ -193,10 +205,10 @@ export default class Tabs extends View {
       .child(h_flex().id("tab-scroll").flex_1().min_w(0).h_full().items_center().overflow_x_scrollbar().track_scroll(this.scroll)
         .on_size_change((_size, cx) => { if (active >= 0) { this.scroll.scroll_to_item(active); cx.notify(); } })
         .children(shown.map(item)))
-      .child(button("tab-new", "+", () => openOverlay({ mod: "new-menu-run", kind: "popup", width: 250, height: 543 })))
+      .child(button("tab-new", "+", () => openOverlay(this.installed["new-menu-run"] ? { mod: "new-menu-run", kind: "popup", width: 250, height: 543 } : { mod: "new-menu", kind: "popup", width: 250, height: 512 })))
       .when(enabled.includes("files"), el => el.child(panelButton("files", "Files", "mods/files/file.svg")))
       .when(enabled.includes("changes"), el => el.child(panelButton("changes", "Changes", "mods/changes/changes.svg")))
-      .child(panelButton("cheatsheet", "Keys", "mods/cheatsheet/keyboard.svg"))
+      .when(keys, el => el.child(panelButton("cheatsheet", "Keys", "mods/cheatsheet/keyboard.svg")))
       .when(w?.buttons, el => el.child(button("minimize", w.platform === "windows" ? svg("mods/tabs-timer/win-min.svg").size(16) : "−", () => run("window.minimize")))
         .child(button("maximize", w.platform === "windows" ? svg(`mods/tabs-timer/${w.maximized ? "win-restore" : "win-max"}.svg`).size(16) : "□", () => run("window.maximize")))
         .child(button("close-window", w.platform === "windows" ? svg("mods/tabs-timer/win-close.svg").size(16) : svg("mods/pane/close.svg").size(13), () => run("window.close"))));

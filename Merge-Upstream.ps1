@@ -30,15 +30,20 @@ if (-not (Test-Path -LiteralPath $appHome)) {
     return
 }
 
-$repoApp = Join-Path $PSScriptRoot 'app'
 $upstream = Join-Path $PSScriptRoot 'upstream'
+$items = @(Get-ChildItem -LiteralPath $PSScriptRoot -Directory | Where-Object { $_.Name -ne 'upstream' })
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 $hasGit = [bool](Get-Command git -ErrorAction SilentlyContinue)
-$hasApp = [bool](Get-Command herdr-app -ErrorAction SilentlyContinue)
+$app = Get-Command herdr-app -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty Source
+if (-not $app -and $env:LOCALAPPDATA) {
+    $installed = Join-Path $env:LOCALAPPDATA 'Programs/herdr-app/herdr-app.exe'
+    if (Test-Path -LiteralPath $installed) { $app = $installed }
+}
+$hasApp = [bool]$app
 
 $appVersion = $null
 if ($hasApp) {
-    $reported = (& herdr-app --version | Select-Object -First 1)
+    $reported = (& $app --version | Select-Object -First 1)
     if ($reported -match '(\d+\.\d+\.\d+\S*)') { $appVersion = $Matches[1] }
 }
 
@@ -82,7 +87,7 @@ function Merge-Text([string]$Ours, [string]$Base, [string]$Theirs, [string]$OldL
 }
 
 $clones = @()
-foreach ($mod in Get-ChildItem -LiteralPath (Join-Path $repoApp 'mods') -Directory) {
+foreach ($mod in $items | ForEach-Object { Join-Path $_.FullName 'mods' } | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object { Get-ChildItem -LiteralPath $_ -Directory }) {
     $manifest = Join-Path $mod.FullName 'mod.json'
     if (-not (Test-Path -LiteralPath $manifest)) { continue }
     $from = (Read-Text $manifest | ConvertFrom-Json).cloned_from
@@ -98,7 +103,7 @@ foreach ($mod in Get-ChildItem -LiteralPath (Join-Path $repoApp 'mods') -Directo
         Folder = $mod.FullName; Seeded = (Test-Path -LiteralPath $base); Found = (Test-Path -LiteralPath $shipped); Files = $files
     }
 }
-foreach ($layout in Get-ChildItem -LiteralPath (Join-Path $repoApp 'layouts') -File -Filter '*.json') {
+foreach ($layout in $items | ForEach-Object { Join-Path $_.FullName 'layouts' } | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object { Get-ChildItem -LiteralPath $_ -File -Filter '*.json' }) {
     $from = (Read-Text $layout.FullName | ConvertFrom-Json).cloned_from
     if (-not $from) { continue }
     $shipped = Join-Path $appHome "layouts\$($from.name).json"
@@ -199,7 +204,7 @@ foreach ($clone in $clones) {
         }
     }
     if ($clone.Folder -and $hasApp -and -not ($conflicted | Where-Object { $_.StartsWith($clone.Folder) })) {
-        & herdr-app check $clone.Folder | Out-Null
+        & $app check $clone.Folder | Out-Null
         if ($LASTEXITCODE -ne 0) { Write-Warning "$($clone.Label): herdr-app check fails after the merge. Run: herdr-app check `"$($clone.Folder)`"" }
     }
 }

@@ -5,15 +5,12 @@
 // A space is in a folder only because it was put there; one without an entry
 // in `of` is loose and shows above the folders.
 import { shared, setShared } from "herdr";
+import * as config from "./config.js";
 
 export const KEY = "spaces.folders";
 export const MAX_DEPTH = 3;
 
-// The folders a first run starts with, and which open spaces go into them.
-const SEED = [
-  { name: "Asito", takes: (s) => /^(asito|mtp)-/i.test(s.name ?? "") },
-  { name: "Personal", takes: (s) => /[\\/]~cerbrus[\\/]/i.test(s.folder ?? "") },
-];
+const SEED = config.SEED ?? [];
 
 const fresh = () => `f${Date.now().toString(36)}${Math.floor(Math.random() * 1296).toString(36)}`;
 
@@ -26,7 +23,7 @@ export function state() {
 
 const save = (st, folders, of = st.of) => setShared(KEY, { folders, of });
 
-export const seeded = () => Boolean(shared(KEY));
+export const seeded = () => !SEED.length || Boolean(shared(KEY));
 
 export function seed(spaces) {
   const folders = SEED.map((f, n) => ({ id: `seed${n}`, name: f.name, parent: null }));
