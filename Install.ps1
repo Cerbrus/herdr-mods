@@ -13,11 +13,12 @@ never overwritten.
 
 .PARAMETER Mod
 The items to install. What they need is installed with them. Without it,
-everything is installed, with the main-folders layout.
+everything is installed, with the borderless layout.
 
 .PARAMETER Layout
-Also install the main-folders layout. A block whose mod is not installed shows
-the shipped mod it was cloned from, or is left out. Once the layout is there,
+Also install the borderless item: the layout with its Files, Changes and tab
+bar. A block whose mod is not installed shows what stands in for it (the
+shipped mod it was cloned from, borderless-tabs for timed-tabs) or is left out. Once the layout is there,
 every install fits it again.
 
 .PARAMETER Rebind
@@ -32,7 +33,7 @@ changes that were made in place. config.js files stay where they are.
 Show the items and what each needs, and install nothing.
 
 .EXAMPLE
-.\Install.ps1 agents-bots, prs-panel -Layout
+.\Install.ps1 agent-cards, pr-inbox -Layout
 #>
 [CmdletBinding()]
 param(
@@ -47,11 +48,12 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $needs = @{
-    'cheatsheet'     = @('tabs-timer')
-    'run-configs'    = @('tabs-timer')
-    'spaces-folders' = @('space-open')
+    'shortcuts'     = @('timed-tabs')
+    'run-configurations'    = @('timed-tabs')
+    'space-folders' = @('project-picker')
 }
-$layoutItem = 'main-folders'
+$layoutItem = 'borderless'
+$stands = @{ 'timed-tabs' = 'borderless-tabs' }
 $personal = 'config.js'
 
 $appHome = Join-Path $HOME '.config\herdr-app'
@@ -72,9 +74,9 @@ if ($List) {
         $mods = @(Get-ItemMods $item | ForEach-Object { $_.Name } | Where-Object { $_ -ne $item })
         if ($mods.Count) { $line += " (with $($mods -join ', '))" }
         if ($needs[$item]) { $line += ", needs $($needs[$item] -join ', ')" }
+        if ($item -eq $layoutItem) { $line += ', the layout (-Layout)' }
         Write-Host $line
     }
-    Write-Host "$layoutItem (layout)"
     return
 }
 
@@ -85,14 +87,15 @@ if (-not (Test-Path -LiteralPath $appHome)) {
 
 $chosen = $items
 if ($Mod) {
-    $unknown = @($Mod | Where-Object { $_ -notin $items -and $_ -ne $layoutItem })
+    $unknown = @($Mod | Where-Object { $_ -notin $items })
     if ($unknown.Count) {
-        Write-Host "Unknown: $($unknown -join ', '). Known: $($items -join ', '), $layoutItem."
+        Write-Host "Unknown: $($unknown -join ', '). Known: $($items -join ', ')."
         return
     }
     if ($Mod -contains $layoutItem) { $Layout = $true }
     $chosen = @()
-    $queue = @($Mod | Where-Object { $_ -ne $layoutItem })
+    $queue = @($Mod)
+    if ($Layout) { $queue += $layoutItem }
     while ($queue.Count) {
         $next = $queue[0]
         $queue = @($queue | Select-Object -Skip 1)
@@ -167,7 +170,8 @@ function Get-CloneOrigin([string]$Name) {
 $script:fitted = @()
 function Set-Fitting($Node) {
     if ($Node.content -and $Node.content.mod -and -not (Test-Path -LiteralPath (Join-Path $appHome "mods\$($Node.content.mod)"))) {
-        $origin = Get-CloneOrigin $Node.content.mod
+        $origin = $stands[$Node.content.mod]
+        if (-not $origin) { $origin = Get-CloneOrigin $Node.content.mod }
         if (-not $origin) {
             $script:fitted += "left out $($Node.content.mod)"
             return $false
@@ -335,6 +339,6 @@ if ($taken.Count) {
 if ($Layout) {
     Write-Host "Files apply at once. Show the layout with: herdr-app do layout.switch --name $layoutItem"
 } else {
-    Write-Host 'Files apply at once. A mod shows where a layout puts it: add -Layout for the main-folders layout,'
+    Write-Host 'Files apply at once. A mod shows where a layout puts it: add -Layout for the borderless layout,'
     Write-Host 'or point a block of your own layout at the mod ("content": { "mod": "<name>" }).'
 }

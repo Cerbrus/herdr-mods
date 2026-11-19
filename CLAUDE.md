@@ -12,13 +12,13 @@ One folder per item, laid out like the app's home (`~\.config\herdr-app`), which
   keys.json        the keys the item expects (optional)
   RECIPE.md        the brief another agent builds it from
   preview.png
-main-folders/layouts/main-folders.json   the layout
+borderless/layouts/borderless.json   the layout
 upstream/          shipped files the clones were made from; never edit by hand
 Install.ps1        copies items to the app, merges keys, fits the layout; -Pull copies back
 Merge-Upstream.ps1 three-way merges a Herdr update into the clones; Install.ps1 runs it first
 ```
 
-`run-configs` holds two mods (`run-configs` and `new-menu-run`). What an item needs is the `$needs` table at the top of `Install.ps1`; keep it, the README table and the recipes in step.
+`run-configurations` holds two mods (`run-configurations` and `run-menu`). What an item needs is the `$needs` table at the top of `Install.ps1`; keep it, the README table and the recipes in step.
 
 ## Rules
 
@@ -32,16 +32,16 @@ Merge-Upstream.ps1 three-way merges a Herdr update into the clones; Install.ps1 
 
 ## How the mods fit together
 
-- `spaces-folders` and `main-folders` are clones of the shipped `spaces` mod and `main` layout; `agents-bots`, `tabs-timer`, `files-flat`, `changes-flat` and `new-menu-run` are clones of `agents`, `tabs`, `files`, `changes` and `new-menu`. The app never updates clones, and shipped mods must not be edited directly.
-- `spaces-folders` keeps its folder menu and dialogs inside itself (`folder-edit.js`) and opens itself as an overlay with `props.mode`. `spaces.folders` in the shared state holds the folders; `spaces.folders.incoming` is how `space-open` tells the list which folder a new space belongs in.
-- `agents-bots` draws agents as cards with a DiceBear avatar and a context bar. The bar reads `data\claude-statusline\<HC_TERMINAL_ID>.json` under the app's folder, which a Claude Code status line script outside this repo writes. An agent idle for over 16 hours sleeps: its avatar is the upright SVG rewritten to lie in a bed under a sheet, cached as a second file, with Z's (`z.svg`) rising from its head. It puts `agents.changed` in the shared state.
-- `tabs-timer` shows a timer per working tab from `agents.changed`, or from when it first saw the tab working. Its `+` opens `new-menu-run` when that is installed, else `new-menu`; its Keys button shows when `panel-body` has a `cheatsheet` child.
-- `new-menu-run` adds a "Start a run config…" row that opens `run-configs` as a tab. `run-configs` reads the JetBrains run configurations (`.run\*.run.xml`) of the folder or the nearest parent that has them. Its processes are herdr-core terminals without a pane (`hc run --bg`), found again by their `runcfg.dir` and `runcfg.name` labels.
-- A mod cannot refuse to close and its `close()` gets 250 ms, so the waiting close of a Run tab goes through `tabs-timer`: its close button, middle click and `tabs-timer.close` put `run-configs.close` in the shared state when `run-configs.live` says that space has running processes, and the copy with that `space` prop stops them and closes the tab itself. `close()` kills what is left on any other route.
+- `space-folders` and `borderless` are clones of the shipped `spaces` mod and `main` layout; `agent-cards`, `timed-tabs`, `borderless-files`, `borderless-changes` and `run-menu` are clones of `agents`, `tabs`, `files`, `changes` and `new-menu`. The app never updates clones, and shipped mods must not be edited directly.
+- `space-folders` keeps its folder menu and dialogs inside itself (`folder-edit.js`) and opens itself as an overlay with `props.mode`. `spaces.folders` in the shared state holds the folders; `spaces.folders.incoming` is how `project-picker` tells the list which folder a new space belongs in.
+- `agent-cards` draws agents as cards with a DiceBear avatar and a context bar. The bar reads `data\claude-statusline\<HC_TERMINAL_ID>.json` under the app's folder, which a Claude Code status line script outside this repo writes. An agent idle for over 16 hours sleeps: its avatar is the upright SVG rewritten to lie in a bed under a sheet, cached as a second file, with Z's (`z.svg`) rising from its head. It puts `agents.changed` in the shared state.
+- `timed-tabs` shows a timer per working tab from `agents.changed`, or from when it first saw the tab working. Its `+` opens `run-menu` when that is installed, else `new-menu`; its Keys button shows when `panel-body` has a `shortcuts` child.
+- `run-menu` adds a "Start a run config…" row that opens `run-configurations` as a tab. `run-configurations` reads the JetBrains run configurations (`.run\*.run.xml`) of the folder or the nearest parent that has them. Its processes are herdr-core terminals without a pane (`hc run --bg`), found again by their `runcfg.dir` and `runcfg.name` labels.
+- A mod cannot refuse to close and its `close()` gets 250 ms, so the waiting close of a Run tab goes through `timed-tabs`: its close button, middle click and `timed-tabs.close` put `run-configs.close` in the shared state when `run-configs.live` says that space has running processes, and the copy with that `space` prop stops them and closes the tab itself. `close()` kills what is left on any other route.
 - `localStorage` is per mod copy and gone with the tab, so the picked run config and the favorites live in the shared state (`run-configs.picks`).
-- `ctrl-shift-r` is bound to `tabs-timer.run`, because a key only reaches a mod that is on screen: `tabs-timer` selects the space's tab named `Run` or opens one, and starts nothing.
-- `prs-panel` is the `prs` block between `work-body` and `status`: one `gh api graphql` call every five minutes. It folds by resizing its own block (`layout.resize`), so the block's height is the collapsed state; `work-main` wraps `work-body` and `prs` only so that edge can be dragged while `work` stays `resizable: false`. The icon in front of a row pastes its prompt through the clipboard: `hc keys` cannot type capitals or `#`, and `hc send` always presses Enter.
-- `changes-flat` wraps long diff lines on request by splitting them into extra rows of the fixed-height virtual list, from an estimated character width.
+- `ctrl-shift-r` is bound to `timed-tabs.run`, because a key only reaches a mod that is on screen: `timed-tabs` selects the space's tab named `Run` or opens one, and starts nothing.
+- `pr-inbox` is the `prs` block between `work-body` and `status`: one `gh api graphql` call every five minutes. It folds by resizing its own block (`layout.resize`), so the block's height is the collapsed state; `work-main` wraps `work-body` and `prs` only so that edge can be dragged while `work` stays `resizable: false`. The icon in front of a row pastes its prompt through the clipboard: `hc keys` cannot type capitals or `#`, and `hc send` always presses Enter.
+- `borderless-changes` wraps long diff lines on request by splitting them into extra rows of the fixed-height virtual list, from an estimated character width.
 
 ## Things the app's docs don't say
 

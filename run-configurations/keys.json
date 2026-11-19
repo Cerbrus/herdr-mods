@@ -1,0 +1,8 @@
+{
+  "global": {
+    "ctrl-shift-r": "timed-tabs.run"
+  },
+  "layout:borderless": {
+    "ctrl-shift-w": "timed-tabs.close"
+  }
+}

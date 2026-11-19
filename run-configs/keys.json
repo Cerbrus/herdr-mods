@@ -1,8 +1,0 @@
-{
-  "global": {
-    "ctrl-shift-r": "tabs-timer.run"
-  },
-  "layout:main-folders": {
-    "ctrl-shift-w": "tabs-timer.close"
-  }
-}
