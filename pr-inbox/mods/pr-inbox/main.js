@@ -1,15 +1,14 @@
 import { View, div, svg } from "gpui-kit";
 import { v_flex, h_flex, Scrollbar } from "gpui-base";
-import { exec, theme, run, layout, props, checking, spaces, agents, panes, notify } from "herdr";
+import { exec, theme, run, layout, props, checking, spaces, panes, notify } from "herdr";
 import * as config from "./config.js";
 
 const OWNER = config.OWNER ?? "", REPOS = config.REPOS ?? null, ROOTS = config.ROOTS ?? [], ARGV = config.ARGV ?? ["claude"];
 const BAR = 28, SEAM = 1, ROW = 24, MAX_ROWS = 8;
 const REFRESH_MS = 5 * 60 * 1000, TICK_MS = 60 * 1000;
-const AGENT_WAIT_MS = 90 * 1000;
 const TASK_ICON = "icons/agent.svg";
-const TASKS = { review: (number) => `Review #${number}`, mine: (number) => `Handle feedback on #${number}`, merge: (number) => `Merge #${number}`,
-  dependabot: (number) => `Review #${number}, and fix any issues. Work towards finalizing this PR so it can be merged.` };
+const TASKS = { review: (number) => `When I say go, review #${number}`, mine: (number) => `When I say go, handle feedback on #${number}`, merge: (number) => `When I say go, merge #${number}`,
+  dependabot: (number) => `When I say go, review #${number}, and fix any issues. Work towards finalizing this PR so it can be merged.` };
 const URGENCY = ["red", "yellow", "green", "draft", "waiting"];
 const FLAG_GLYPHS = { red: "●", yellow: "●", green: "●", draft: "✎", waiting: "○" };
 const FLAG_WORDS = { red: "need your action", yellow: "need attention", green: "ready or done by you", draft: "draft", waiting: "waiting on others" };
@@ -161,49 +160,17 @@ export default class PullRequests extends View {
   }
 
   startTask(item, cx) {
-    const text = item.task, space = this.spaceFor(item.repo);
-    this.pending = { repo: item.repo, text, known: new Set(agents().map((agent) => agent.address)), until: Date.now() + AGENT_WAIT_MS };
+    const task = item.task, space = this.spaceFor(item.repo);
     if (space) {
       run("space.select", { id: space.id });
-      run("tab.new", { space: space.id, argv: ARGV });
-      return this.awaitAgent(cx);
+      run("tab.new", { space: space.id, argv: ARGV, task });
+      return;
     }
-    cx.spawn(async (cx) => {
+    cx.spawn(async () => {
       const folder = await this.folderFor(item.repo);
-      if (!folder) {
-        this.pending = null;
-        notify({ title: `No folder for ${item.repo}`, body: ROOTS.length ? `Looked in ${ROOTS.join(" and ")}` : "List your project folders as ROOTS in mods/pr-inbox/config.js", level: "warning" });
-        return;
-      }
-      run("space.new", { folder, argv: ARGV });
-      this.awaitAgent(cx);
+      if (folder) run("space.new", { folder, argv: ARGV, task });
+      else notify({ title: `No folder for ${item.repo}`, body: ROOTS.length ? `Looked in ${ROOTS.join(" and ")}` : "List your project folders as ROOTS in mods/pr-inbox/config.js", level: "warning" });
     });
-  }
-
-  awaitAgent(cx) {
-    cx.timer.after(500, (cx) => {
-      const pending = this.pending;
-      if (!pending) return;
-      const space = this.spaceFor(pending.repo);
-      const agent = space && agents().find((candidate) => candidate.space === space.id && !pending.known.has(candidate.address) && candidate.status === "idle");
-      if (agent) {
-        this.pending = null;
-        this.deliver(agent, pending.text, cx);
-      } else if (Date.now() > pending.until) {
-        this.pending = null;
-        notify({ title: `No agent came up in ${pending.repo}`, body: `"${pending.text}" was not typed`, level: "warning" });
-      } else this.awaitAgent(cx);
-    });
-  }
-
-  deliver(agent, text, cx) {
-    run("space.select", { id: agent.space });
-    run("tab.select", { id: agent.tab });
-    run("pane.focus", { terminal: agent.address });
-    const previous = cx.read_from_clipboard();
-    cx.write_to_clipboard(text);
-    cx.timer.after(200, () => run("terminal.paste"));
-    cx.timer.after(1500, (cx) => { if (previous !== undefined) cx.write_to_clipboard(previous); });
   }
 
   colors(t) {

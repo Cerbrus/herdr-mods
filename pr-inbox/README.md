@@ -22,7 +22,7 @@ Folded, it is one line: the counts, and the pull request that needs you most.
   | Open circle | Waiting on others |
 
 - **Reviewers at a glance.** A mark per reviewer at the end of the row: requested, approved, changes requested or commented. Hover for their names.
-- **An agent per pull request.** The icon in front of a row that needs something goes to the space of that repository (or opens it), starts a new agent tab and types the task: `Review #409`, `Handle feedback on #412`, `Merge #388`.
+- **An agent per pull request.** The icon in front of a row that needs something goes to the space of that repository (or opens it), starts a new agent tab and sends it the task: `When I say go, review #409`, and likewise `handle feedback on #412` or `merge #388`. The agent waits for your go.
 - **A click on the row** opens the pull request in the browser.
 - It refreshes every five minutes; the arrow at the right refreshes now and shows how old the list is.
 
@@ -67,7 +67,7 @@ The agent icon looks for a space named after the repository, or one with a termi
 ## Good to know
 
 - **It reaches GitHub through `gh`**, with your login: one search every five minutes. Nothing else leaves your computer.
-- The task is typed into the new agent through the clipboard, which is put back a moment later.
+- The task is sent as the agent's first message and starts with "When I say go,", so the agent holds until you say go and you can add to the task first.
 - Finding a repository's folder uses `cmd`, so opening a space that is not open yet is Windows only. The lists work everywhere.
 - A pull request with the label `ship` counts as waiting to be merged. Reviews by Copilot are ignored.
 - It expects a block of its own in the layout with a height in pixels: it folds by resizing that block.
